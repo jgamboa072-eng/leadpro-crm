@@ -1,0 +1,3320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LeadPro CRM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <style>
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body, #root { height: 100%; width: 100%; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F5F6FA; color: #1A1D2E; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #CBD0E0; border-radius: 99px; }
+
+    .app { display: flex; height: 100vh; overflow: hidden; }
+
+    /* SIDEBAR */
+    .sidebar { width: 240px; min-width: 240px; background: #0A2463; display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden; transition: width 0.25s ease; }
+    .sidebar.collapsed { width: 64px; min-width: 64px; }
+    .sidebar-logo { padding: 22px 18px 18px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); cursor: pointer; }
+    .logo-text { font-size: 15px; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; line-height: 1.2; }
+    .logo-text span { color: #FF6B35; }
+    .logo-sub { font-size: 9px; font-weight: 600; color: rgba(255,255,255,0.35); letter-spacing: 0.08em; }
+    .sidebar-nav { flex: 1; padding: 14px 10px; display: flex; flex-direction: column; gap: 2px; }
+    .nav-label { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.28); letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 10px 4px; white-space: nowrap; overflow: hidden; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; cursor: pointer; transition: all 0.15s; color: rgba(255,255,255,0.55); font-size: 13.5px; font-weight: 500; white-space: nowrap; overflow: hidden; }
+    .nav-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+    .nav-item.active { background: rgba(255,107,53,0.2); color: #FF6B35; }
+    .nav-icon { font-size: 16px; min-width: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .nav-badge { margin-left: auto; background: #FF6B35; color: #fff; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 99px; min-width: 18px; text-align: center; }
+    .sidebar-footer { padding: 14px 10px; border-top: 1px solid rgba(255,255,255,0.08); }
+
+    /* MAIN */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* HEADER */
+    .header { height: 62px; min-height: 62px; background: #fff; border-bottom: 1px solid #E8EAF2; display: flex; align-items: center; gap: 14px; padding: 0 22px; }
+    .header-toggle { width: 34px; height: 34px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: #6B7099; font-size: 18px; transition: background 0.15s; }
+    .header-toggle:hover { background: #F0F2FA; }
+    .search-wrap { flex: 1; max-width: 380px; position: relative; }
+    .search-input { width: 100%; height: 37px; background: #F5F6FA; border: 1.5px solid #E8EAF2; border-radius: 10px; padding: 0 14px 0 38px; font-family: inherit; font-size: 13px; color: #1A1D2E; outline: none; transition: border-color 0.15s, background 0.15s; }
+    .search-input:focus { border-color: #0A2463; background: #fff; }
+    .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9EA3BD; font-size: 14px; pointer-events: none; }
+    .header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+    .header-btn { width: 36px; height: 36px; border: none; background: #F5F6FA; border-radius: 9px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #6B7099; font-size: 16px; transition: all 0.15s; position: relative; }
+    .header-btn:hover { background: #E8EAF2; color: #0A2463; }
+    .notif-dot { position: absolute; top: 7px; right: 7px; width: 7px; height: 7px; background: #FF6B35; border-radius: 50%; border: 1.5px solid #fff; }
+    .user-avatar { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .user-info { margin-left: 2px; }
+    .user-name { font-size: 13px; font-weight: 700; color: #1A1D2E; }
+    .user-role { font-size: 11px; color: #9EA3BD; }
+
+    /* CONTENT */
+    .content { flex: 1; overflow-y: auto; padding: 26px 26px; }
+    .page-header { margin-bottom: 24px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .page-title { font-size: 21px; font-weight: 800; color: #1A1D2E; margin-bottom: 3px; }
+    .page-sub { font-size: 13px; color: #9EA3BD; }
+
+    /* BUTTONS */
+    .btn { display: inline-flex; align-items: center; gap: 7px; padding: 0 18px; height: 38px; border-radius: 10px; font-family: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; border: none; transition: all 0.15s; }
+    .btn-primary { background: #FF6B35; color: #fff; }
+    .btn-primary:hover { background: #e85e2a; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(255,107,53,0.3); }
+    .btn-outline { background: #fff; color: #1A1D2E; border: 1.5px solid #E8EAF2; }
+    .btn-outline:hover { border-color: #C0C4D8; background: #F5F6FA; }
+
+    /* KPI */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 22px; }
+    .kpi-card { background: #fff; border-radius: 14px; padding: 20px 18px; box-shadow: 0 1px 3px rgba(10,36,99,0.05), 0 4px 14px rgba(10,36,99,0.04); display: flex; flex-direction: column; gap: 12px; transition: transform 0.15s, box-shadow 0.15s; position: relative; overflow: hidden; }
+    .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(10,36,99,0.1); }
+    .kpi-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 14px 14px 0 0; }
+    .kpi-top { display: flex; align-items: flex-start; justify-content: space-between; }
+    .kpi-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .kpi-trend { display: flex; align-items: center; gap: 3px; font-size: 11.5px; font-weight: 600; padding: 3px 8px; border-radius: 99px; }
+    .trend-up { background: #E8FAF0; color: #22C55E; }
+    .trend-dn { background: #FFF0EC; color: #FF6B35; }
+    .kpi-value { font-size: 28px; font-weight: 800; color: #1A1D2E; line-height: 1; }
+    .kpi-label { font-size: 12px; color: #9EA3BD; font-weight: 500; margin-top: 2px; }
+
+    /* CARDS */
+    .card { background: #fff; border-radius: 14px; box-shadow: 0 1px 3px rgba(10,36,99,0.05), 0 4px 14px rgba(10,36,99,0.04); overflow: hidden; }
+    .card-header { padding: 16px 18px 0; display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+    .card-title { font-size: 14px; font-weight: 700; color: #1A1D2E; }
+    .card-sub { font-size: 11.5px; color: #9EA3BD; margin-top: 2px; }
+    .card-action { font-size: 12px; color: #FF6B35; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 3px; }
+
+    /* BOTTOM GRID */
+    .bottom-grid { display: grid; grid-template-columns: 1fr 1.55fr; gap: 18px; }
+
+    /* COUNTRY CHART */
+    .chart-wrap { padding: 14px 18px 18px; }
+    .country-item { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+    .country-info { display: flex; align-items: center; justify-content: space-between; }
+    .country-name { font-size: 13px; font-weight: 600; color: #1A1D2E; display: flex; align-items: center; gap: 6px; }
+    .country-count { font-size: 12.5px; font-weight: 700; color: #0A2463; }
+    .country-pct { font-size: 11px; color: #9EA3BD; font-weight: 500; margin-left: 6px; }
+    .bar-track { height: 7px; background: #F0F2FA; border-radius: 99px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 99px; transition: width 1.2s cubic-bezier(0.34,1.56,0.64,1); }
+
+    /* TABLE */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { border-bottom: 1.5px solid #F0F2FA; }
+    th { padding: 9px 14px; text-align: left; font-size: 10.5px; font-weight: 700; color: #9EA3BD; letter-spacing: 0.05em; text-transform: uppercase; white-space: nowrap; cursor: pointer; user-select: none; }
+    th:hover { color: #6B7099; }
+    td { padding: 12px 14px; font-size: 13px; color: #1A1D2E; border-bottom: 1px solid #F5F6FA; }
+    tr:last-child td { border-bottom: none; }
+    tbody tr { transition: background 0.12s; cursor: pointer; }
+    tbody tr:hover td { background: #F9FAFD; }
+    tbody tr.selected td { background: #EEF4FF; }
+    .lead-avatar { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #fff; flex-shrink: 0; }
+    .lead-name-cell { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+    .country-cell { display: flex; align-items: center; gap: 5px; }
+    .vendor-cell { display: flex; align-items: center; gap: 6px; }
+    .vendor-dot { width: 22px; height: 22px; border-radius: 6px; background: #E8EAF2; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: #6B7099; }
+
+    /* BADGES */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+    .badge-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+    .b-nuevo      { background:#EEF4FF; color:#3B82F6; }  .b-nuevo .badge-dot      { background:#3B82F6; }
+    .b-contactado { background:#FFF4EE; color:#FF6B35; }  .b-contactado .badge-dot { background:#FF6B35; }
+    .b-enproceso  { background:#FFFBEA; color:#F59E0B; }  .b-enproceso .badge-dot  { background:#F59E0B; }
+    .b-cerrado    { background:#EDFAF4; color:#22C55E; }  .b-cerrado .badge-dot    { background:#22C55E; }
+
+    /* FILTERS */
+    .filters-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .filter-select { height: 36px; padding: 0 12px; background: #fff; border: 1.5px solid #E8EAF2; border-radius: 9px; font-family: inherit; font-size: 13px; color: #1A1D2E; outline: none; cursor: pointer; transition: border-color 0.15s; }
+    .filter-select:focus { border-color: #0A2463; }
+    .filter-search { height: 36px; padding: 0 12px 0 36px; background: #fff; border: 1.5px solid #E8EAF2; border-radius: 9px; font-family: inherit; font-size: 13px; color: #1A1D2E; outline: none; transition: border-color 0.15s; flex: 1; min-width: 180px; max-width: 280px; }
+    .filter-search:focus { border-color: #0A2463; }
+    .filter-wrap { position: relative; }
+    .filter-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: #C0C4D8; font-size: 13px; pointer-events: none; }
+    .filter-tag { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; background: #EEF4FF; border-radius: 99px; font-size: 11.5px; font-weight: 600; color: #0A2463; cursor: pointer; }
+    .filter-tag:hover { background: #dce8ff; }
+
+    /* VENDEDORES */
+    .sellers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+    .seller-card { background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(10,36,99,0.05), 0 4px 14px rgba(10,36,99,0.04); transition: transform 0.15s, box-shadow 0.15s; cursor: pointer; position: relative; overflow: hidden; }
+    .seller-card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(10,36,99,0.1); }
+    .seller-card-accent { position: absolute; top: 0; left: 0; right: 0; height: 4px; border-radius: 16px 16px 0 0; }
+    .seller-avatar-wrap { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+    .seller-avatar { width: 52px; height: 52px; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: #fff; flex-shrink: 0; }
+    .seller-name { font-size: 15px; font-weight: 800; color: #1A1D2E; margin-bottom: 2px; }
+    .seller-role { font-size: 12px; color: #9EA3BD; font-weight: 500; }
+    .seller-countries { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 16px; }
+    .country-pill { display: flex; align-items: center; gap: 4px; padding: 3px 8px; background: #F5F6FA; border-radius: 99px; font-size: 11.5px; font-weight: 600; color: #6B7099; }
+    .seller-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .metric-box { background: #F9FAFD; border-radius: 10px; padding: 10px 8px; text-align: center; }
+    .metric-val { font-size: 18px; font-weight: 800; color: #1A1D2E; line-height: 1; }
+    .metric-label { font-size: 10px; color: #9EA3BD; font-weight: 600; margin-top: 3px; letter-spacing: 0.02em; }
+    .perf-bar { height: 5px; background: #F0F2FA; border-radius: 99px; overflow: hidden; margin-top: 14px; }
+    .perf-fill { height: 100%; border-radius: 99px; transition: width 1s ease; }
+    .perf-label { display: flex; justify-content: space-between; margin-top: 5px; font-size: 11px; }
+    .perf-text { color: #9EA3BD; font-weight: 500; }
+    .perf-pct { font-weight: 700; }
+
+    /* MODAL */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(10,36,99,0.45); display: flex; align-items: center; justify-content: center; z-index: 900; backdrop-filter: blur(4px); animation: fadeIn 0.2s ease; }
+    .modal { background: #fff; border-radius: 18px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(10,36,99,0.2); animation: slideUp 0.22s ease; }
+    .modal-header { padding: 22px 24px 0; display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .modal-title { font-size: 17px; font-weight: 800; color: #1A1D2E; }
+    .modal-close { width: 30px; height: 30px; border: none; background: #F5F6FA; border-radius: 8px; cursor: pointer; font-size: 14px; color: #6B7099; transition: background 0.15s; display: flex; align-items: center; justify-content: center; }
+    .modal-close:hover { background: #E8EAF2; color: #1A1D2E; }
+    .modal-body { padding: 0 24px 24px; display: flex; flex-direction: column; gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label { font-size: 12px; font-weight: 700; color: #1A1D2E; letter-spacing: 0.01em; }
+    .form-input { height: 40px; padding: 0 12px; background: #F5F6FA; border: 1.5px solid #E8EAF2; border-radius: 9px; font-family: inherit; font-size: 13px; color: #1A1D2E; outline: none; transition: border-color 0.15s, background 0.15s; }
+    .form-input:focus { border-color: #0A2463; background: #fff; }
+    .form-select { height: 40px; padding: 0 12px; background: #F5F6FA; border: 1.5px solid #E8EAF2; border-radius: 9px; font-family: inherit; font-size: 13px; color: #1A1D2E; outline: none; cursor: pointer; }
+    .form-select:focus { border-color: #0A2463; background: #fff; }
+    .form-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; padding-top: 6px; }
+
+    /* NOTIF DROPDOWN */
+    .notif-dropdown { position: absolute; top: calc(100% + 8px); right: 0; width: 270px; background: #fff; border: 1px solid #E8EAF2; border-radius: 13px; box-shadow: 0 8px 30px rgba(10,36,99,0.12); z-index: 200; overflow: hidden; }
+    .notif-hd { padding: 12px 14px; border-bottom: 1px solid #F0F2FA; font-size: 13px; font-weight: 700; color: #1A1D2E; }
+    .notif-item { padding: 10px 14px; display: flex; gap: 10px; align-items: flex-start; cursor: pointer; transition: background 0.12s; }
+    .notif-item:hover { background: #F9FAFD; }
+    .notif-icon { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+    .notif-text { font-size: 12px; font-weight: 600; color: #1A1D2E; line-height: 1.4; }
+    .notif-time { font-size: 11px; color: #9EA3BD; margin-top: 2px; }
+
+    /* ANIMATIONS */
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    @keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+    /* EMPTY */
+    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 60px 20px; color: #C0C4D8; }
+    .empty-icon { font-size: 40px; opacity: 0.4; }
+    .empty-text { font-size: 14px; font-weight: 600; }
+    .empty-sub  { font-size: 13px; color: #D5D8E8; }
+
+    @media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(2,1fr); } .bottom-grid { grid-template-columns: 1fr; } .user-info { display:none; } }
+    @media (max-width: 700px) { .sidebar { width:64px; min-width:64px; } .kpi-grid { grid-template-columns:1fr; } .content { padding:16px; } }
+
+    /* ── DEMO LANDING PAGE (scoped) ── */
+    .demo-page{font-family:'Plus Jakarta Sans',sans-serif;color:#1A1D2E;background:#fff;height:100vh;overflow-y:auto;width:100%;}
+    .demo-page *,.demo-page *::before,.demo-page *::after{box-sizing:border-box;}
+    .demo-page .demo-nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.93);backdrop-filter:blur(20px);border-bottom:1px solid rgba(10,36,99,0.08);height:64px;display:flex;align-items:center;padding:0 56px;gap:32px;}
+    .demo-page .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
+    .demo-page .nav-logo-text{font-size:17px;font-weight:900;color:#0A2463;letter-spacing:-0.02em;}
+    .demo-page .nav-logo-text span{color:#FF6B35;}
+    .demo-page .nav-links{display:flex;gap:28px;margin-left:auto;align-items:center;}
+    .demo-page .nav-link{font-size:13.5px;font-weight:500;color:#6B7099;cursor:pointer;transition:color 0.15s;text-decoration:none;}
+    .demo-page .nav-link:hover{color:#0A2463;}
+    .demo-page .nav-cta{height:38px;padding:0 22px;background:#FF6B35;color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;transition:all 0.15s;text-decoration:none;display:flex;align-items:center;}
+    .demo-page .nav-cta:hover{background:#e85e2a;box-shadow:0 4px 14px rgba(255,107,53,0.35);transform:translateY(-1px);}
+    .demo-page .nav-admin{height:38px;padding:0 18px;background:#EEF4FF;color:#0A2463;border:none;border-radius:10px;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;transition:all 0.15s;text-decoration:none;display:flex;align-items:center;gap:6px;}
+    .demo-page .nav-admin:hover{background:#dce8ff;}
+    .demo-page .hero{min-height:100vh;position:relative;display:flex;align-items:center;overflow:hidden;padding:60px 56px 60px;}
+    .demo-page .hero-bg{position:absolute;inset:0;background:linear-gradient(135deg,#06112E 0%,#0A2463 50%,#0d3080 100%);z-index:0;}
+    .demo-page .orb{position:absolute;border-radius:50%;filter:blur(80px);animation:demoFloat 8s ease-in-out infinite;pointer-events:none;}
+    .demo-page .orb1{width:500px;height:500px;background:rgba(255,107,53,0.18);top:-100px;right:-100px;}
+    .demo-page .orb2{width:350px;height:350px;background:rgba(99,102,241,0.15);bottom:-80px;left:10%;animation-delay:3s;}
+    .demo-page .orb3{width:200px;height:200px;background:rgba(255,107,53,0.1);top:40%;left:40%;animation-delay:5s;}
+    @keyframes demoFloat{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(30px,-20px) scale(1.05);}66%{transform:translate(-20px,10px) scale(0.97);}}
+    .demo-page .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);background-size:60px 60px;z-index:1;pointer-events:none;}
+    .demo-page .hero-content{position:relative;z-index:2;max-width:600px;}
+    .demo-page .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,107,53,0.15);border:1px solid rgba(255,107,53,0.3);border-radius:99px;padding:7px 16px;font-size:12px;font-weight:700;color:#FF6B35;margin-bottom:24px;letter-spacing:0.04em;}
+    .demo-page .pulse-dot{width:7px;height:7px;border-radius:50%;background:#FF6B35;animation:demoPulse 1.5s infinite;}
+    @keyframes demoPulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(1.5);}}
+    .demo-page .hero h1{font-size:62px;font-weight:900;line-height:1.05;color:#fff;text-wrap:balance;margin-bottom:20px;letter-spacing:-0.02em;}
+    .demo-page .hero h1 .accent{color:#FF6B35;position:relative;}
+    .demo-page .hero p{font-size:17px;color:rgba(255,255,255,0.6);line-height:1.75;margin-bottom:36px;max-width:480px;}
+    .demo-page .hero-ctas{display:flex;gap:12px;margin-bottom:48px;flex-wrap:wrap;}
+    .demo-page .btn-hero-primary{height:52px;padding:0 32px;background:#FF6B35;color:#fff;border:none;border-radius:13px;font-family:inherit;font-size:15px;font-weight:800;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:8px;}
+    .demo-page .btn-hero-primary:hover{background:#e85e2a;transform:translateY(-2px);box-shadow:0 10px 32px rgba(255,107,53,0.45);}
+    .demo-page .btn-hero-secondary{height:52px;padding:0 28px;background:rgba(255,255,255,0.1);color:#fff;border:1.5px solid rgba(255,255,255,0.2);border-radius:13px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:8px;backdrop-filter:blur(8px);}
+    .demo-page .btn-hero-secondary:hover{background:rgba(255,255,255,0.18);border-color:rgba(255,255,255,0.4);}
+    .demo-page .hero-stats{display:flex;gap:36px;padding-top:36px;border-top:1px solid rgba(255,255,255,0.1);flex-wrap:wrap;}
+    .demo-page .hero-stat-val{font-size:30px;font-weight:900;color:#FF6B35;}
+    .demo-page .hero-stat-label{font-size:11.5px;color:rgba(255,255,255,0.4);font-weight:600;letter-spacing:0.05em;margin-top:2px;}
+    .demo-page .preview-section{padding:80px 56px;background:#F5F6FA;position:relative;overflow:hidden;}
+    .demo-page .preview-section::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#0A2463,#FF6B35,#6366F1);}
+    .demo-page .section-label{font-size:11px;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;color:#FF6B35;margin-bottom:10px;}
+    .demo-page .section-title{font-size:36px;font-weight:900;color:#0A2463;margin-bottom:10px;letter-spacing:-0.02em;}
+    .demo-page .section-sub{font-size:16px;color:#6B7099;line-height:1.65;max-width:520px;margin-bottom:48px;}
+    .demo-page .browser-frame{background:#fff;border-radius:16px;box-shadow:0 24px 80px rgba(10,36,99,0.18),0 4px 16px rgba(10,36,99,0.08);overflow:hidden;max-width:960px;margin:0 auto;}
+    .demo-page .browser-bar{background:#F0F2FA;padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #E8EAF2;}
+    .demo-page .browser-dots{display:flex;gap:6px;}
+    .demo-page .browser-dot{width:11px;height:11px;border-radius:50%;}
+    .demo-page .browser-url{flex:1;background:#fff;border-radius:7px;padding:5px 14px;font-size:11.5px;color:#9EA3BD;font-family:monospace;border:1px solid #E8EAF2;max-width:360px;margin:0 auto;}
+    .demo-page .browser-body{background:#F5F6FA;overflow:hidden;}
+    .demo-page .mini-dash{display:flex;height:420px;}
+    .demo-page .mini-sidebar{width:52px;background:#0A2463;display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:8px;}
+    .demo-page .mini-nav-dot{width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:13px;color:rgba(255,255,255,0.6);}
+    .demo-page .mini-nav-dot.active{background:rgba(255,107,53,0.25);color:#FF6B35;}
+    .demo-page .mini-main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+    .demo-page .mini-header{height:42px;background:#fff;border-bottom:1px solid #E8EAF2;display:flex;align-items:center;padding:0 14px;gap:10px;}
+    .demo-page .mini-search{flex:1;max-width:180px;height:24px;background:#F5F6FA;border-radius:6px;border:1px solid #E8EAF2;}
+    .demo-page .mini-content{flex:1;padding:14px;overflow:hidden;}
+    .demo-page .mini-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+    .demo-page .mini-kpi{background:#fff;border-radius:8px;padding:10px;box-shadow:0 1px 4px rgba(10,36,99,0.06);}
+    .demo-page .mini-kpi-val{font-size:16px;font-weight:800;color:#0A2463;}
+    .demo-page .mini-kpi-label{font-size:9px;color:#9EA3BD;font-weight:600;margin-top:1px;}
+    .demo-page .mini-kpi-bar{height:3px;border-radius:99px;margin-top:6px;}
+    .demo-page .mini-grid{display:grid;grid-template-columns:1fr 1.6fr;gap:8px;}
+    .demo-page .mini-card{background:#fff;border-radius:8px;padding:10px;box-shadow:0 1px 4px rgba(10,36,99,0.06);}
+    .demo-page .mini-card-title{font-size:9px;font-weight:700;color:#1A1D2E;margin-bottom:8px;}
+    .demo-page .mini-bar-row{display:flex;flex-direction:column;gap:5px;}
+    .demo-page .mini-country-row{display:flex;align-items:center;gap:6px;margin-bottom:3px;}
+    .demo-page .mini-country-bar{height:5px;border-radius:99px;}
+    .demo-page .mini-table-row{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid #F5F6FA;font-size:9px;}
+    .demo-page .mini-avatar{width:16px;height:16px;border-radius:4px;flex-shrink:0;}
+    .demo-page .mini-badge{padding:1px 5px;border-radius:99px;font-size:8px;font-weight:700;}
+    .demo-page .form-section{padding:80px 56px;background:#fff;}
+    .demo-page .form-grid-layout{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start;max-width:1100px;margin:0 auto;}
+    .demo-page .form-card{background:#fff;border-radius:20px;padding:40px;box-shadow:0 8px 40px rgba(10,36,99,0.1),0 2px 8px rgba(10,36,99,0.06);border:1px solid #F0F2FA;}
+    .demo-page .form-card h3{font-size:22px;font-weight:800;color:#0A2463;margin-bottom:4px;}
+    .demo-page .form-card p{font-size:13.5px;color:#9EA3BD;margin-bottom:26px;}
+    .demo-page .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .demo-page .form-group{display:flex;flex-direction:column;gap:6px;}
+    .demo-page .form-group.full{grid-column:1/-1;}
+    .demo-page .form-label{font-size:12px;font-weight:700;color:#1A1D2E;letter-spacing:0.01em;}
+    .demo-page .form-input,.demo-page .form-select,.demo-page .form-textarea{width:100%;background:#F5F6FA;border:1.5px solid #E8EAF2;border-radius:10px;font-family:inherit;font-size:13.5px;color:#1A1D2E;outline:none;transition:border-color 0.15s,background 0.15s;}
+    .demo-page .form-input,.demo-page .form-select{height:42px;padding:0 14px;}
+    .demo-page .form-textarea{padding:10px 14px;min-height:80px;resize:vertical;}
+    .demo-page .form-input:focus,.demo-page .form-select:focus,.demo-page .form-textarea:focus{border-color:#0A2463;background:#fff;}
+    .demo-page .form-input::placeholder,.demo-page .form-textarea::placeholder{color:#C0C4D8;}
+    .demo-page .btn-submit{width:100%;height:52px;background:#FF6B35;border:none;border-radius:12px;color:#fff;font-family:inherit;font-size:16px;font-weight:800;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px;}
+    .demo-page .btn-submit:hover{background:#e85e2a;transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,107,53,0.4);}
+    .demo-page .form-trust{display:flex;align-items:center;gap:8px;font-size:12px;color:#C0C4D8;justify-content:center;margin-top:10px;}
+    .demo-page .benefits-list{display:flex;flex-direction:column;gap:24px;}
+    .demo-page .benefit-item{display:flex;gap:16px;align-items:flex-start;}
+    .demo-page .benefit-icon-wrap{width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+    .demo-page .benefit-title{font-size:16px;font-weight:800;color:#0A2463;margin-bottom:4px;}
+    .demo-page .benefit-desc{font-size:13.5px;color:#6B7099;line-height:1.6;}
+    .demo-page .channels-section{padding:80px 56px;background:#F9FAFD;}
+    .demo-page .channels-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px;}
+    .demo-page .channel-card{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 2px 8px rgba(10,36,99,0.06),0 8px 28px rgba(10,36,99,0.04);transition:transform 0.15s,box-shadow 0.15s;}
+    .demo-page .channel-card:hover{transform:translateY(-4px);box-shadow:0 8px 32px rgba(10,36,99,0.12);}
+    .demo-page .channel-header{padding:16px 18px;display:flex;align-items:center;gap:12px;}
+    .demo-page .channel-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;color:#fff;}
+    .demo-page .channel-name{font-size:14px;font-weight:800;color:#1A1D2E;}
+    .demo-page .channel-type{font-size:11px;color:#9EA3BD;font-weight:500;margin-top:1px;}
+    .demo-page .channel-body{padding:0 18px 18px;}
+    .demo-page .wa-chat{background:#E5DDD5;border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px;}
+    .demo-page .wa-msg{max-width:82%;padding:8px 12px;border-radius:10px;font-size:12px;line-height:1.5;}
+    .demo-page .wa-msg.recv{background:#fff;border-radius:0 10px 10px 10px;align-self:flex-start;}
+    .demo-page .wa-msg.sent{background:#DCF8C6;border-radius:10px 0 10px 10px;align-self:flex-end;text-align:right;}
+    .demo-page .wa-time{font-size:10px;color:#9EA3BD;margin-top:2px;text-align:right;}
+    .demo-page .fb-form{background:#fff;border-radius:8px;border:1px solid #E4E6EB;overflow:hidden;}
+    .demo-page .fb-form-header{background:linear-gradient(135deg,#1877F2,#0d5bcc);padding:14px 16px;color:#fff;}
+    .demo-page .fb-form-title{font-size:13px;font-weight:800;}
+    .demo-page .fb-form-sub{font-size:11px;opacity:0.8;margin-top:2px;}
+    .demo-page .fb-form-body{padding:14px 16px;display:flex;flex-direction:column;gap:8px;}
+    .demo-page .fb-field{height:34px;background:#F0F2F5;border-radius:6px;border:none;width:100%;padding:0 10px;font-size:12px;color:#1A1D2E;font-family:inherit;}
+    .demo-page .fb-btn{height:34px;background:#1877F2;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;width:100%;}
+    .demo-page .li-card{background:#fff;border-radius:8px;border:1px solid #E0E0E0;overflow:hidden;}
+    .demo-page .li-profile{padding:14px;display:flex;gap:10px;align-items:flex-start;border-bottom:1px solid #E0E0E0;}
+    .demo-page .li-avatar{width:40px;height:40px;border-radius:50%;background:#0A2463;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0;}
+    .demo-page .li-name{font-size:12.5px;font-weight:700;color:#1A1D2E;}
+    .demo-page .li-title{font-size:11px;color:#666;margin-top:1px;}
+    .demo-page .li-msg{padding:12px 14px;font-size:12px;color:#1A1D2E;line-height:1.55;background:#F3F6F8;border-radius:8px;margin:12px;}
+    .demo-page .li-actions{padding:8px 14px;display:flex;gap:8px;}
+    .demo-page .li-btn{height:30px;padding:0 14px;border-radius:99px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+    .demo-page .li-btn.primary{background:#0A66C2;color:#fff;border:none;}
+    .demo-page .li-btn.secondary{background:#fff;color:#0A66C2;border:1.5px solid #0A66C2;}
+    .demo-page .social-section{padding:48px 56px;background:#fff;border-top:1px solid #F0F2FA;}
+    .demo-page .logos-row{display:flex;align-items:center;justify-content:center;gap:32px;flex-wrap:wrap;margin-top:28px;}
+    .demo-page .logo-pill{background:#F5F6FA;border-radius:10px;padding:10px 22px;font-size:14px;font-weight:800;color:#C0C4D8;letter-spacing:-0.02em;}
+    .demo-page .demo-footer{background:#06112E;padding:56px 56px 32px;}
+    .demo-page .footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:48px;}
+    .demo-page .footer-brand p{font-size:13.5px;color:rgba(255,255,255,0.4);line-height:1.7;margin-top:14px;max-width:260px;}
+    .demo-page .footer-col-title{font-size:12px;font-weight:800;color:rgba(255,255,255,0.6);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:16px;}
+    .demo-page .footer-link{display:block;font-size:13.5px;color:rgba(255,255,255,0.35);margin-bottom:10px;cursor:pointer;transition:color 0.15s;text-decoration:none;}
+    .demo-page .footer-link:hover{color:#fff;}
+    .demo-page .footer-social{display:flex;gap:10px;margin-top:16px;}
+    .demo-page .social-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer;transition:all 0.15s;}
+    .demo-page .footer-bottom{border-top:1px solid rgba(255,255,255,0.07);padding-top:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+    .demo-page .footer-copy{font-size:12px;color:rgba(255,255,255,0.2);}
+    .demo-page .footer-badges{display:flex;gap:8px;}
+    .demo-page .footer-badge{padding:4px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:6px;font-size:11px;color:rgba(255,255,255,0.25);}
+    .demo-page .success-state{text-align:center;padding:20px 0 8px;}
+    @keyframes demoSlideUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes demoSpin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+    .demo-page .animate-in{animation:demoSlideUp 0.4s ease both;}
+    @media(max-width:1000px){
+      .demo-page .hero h1{font-size:42px;}
+      .demo-page .form-grid-layout,.demo-page .footer-top{grid-template-columns:1fr;}
+      .demo-page .channels-grid{grid-template-columns:1fr;}
+      .demo-page .demo-nav,.demo-page .hero,.demo-page .preview-section,.demo-page .form-section,.demo-page .channels-section,.demo-page .social-section,.demo-page .demo-footer{padding-left:24px;padding-right:24px;}
+    }
+    @media(max-width:600px){
+      .demo-page .hero h1{font-size:32px;}
+      .demo-page .nav-links .nav-link{display:none;}
+    }
+  </style>
+  <template id="__bundler_thumbnail" data-bg-color="#0A2463">
+    <svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
+      <rect width="120" height="80" fill="#0A2463"/>
+      <rect x="8" y="8" width="22" height="64" rx="4" fill="rgba(255,255,255,0.06)"/>
+      <rect x="10" y="12" width="18" height="18" rx="4" fill="#FF6B35"/>
+      <rect x="12" y="14" width="4" height="10" rx="1" fill="white" opacity="0.9"/>
+      <rect x="12" y="14" width="10" height="4" rx="1" fill="white" opacity="0.9"/>
+      <rect x="36" y="8" width="76" height="14" rx="3" fill="rgba(255,255,255,0.07)"/>
+      <rect x="40" y="28" width="16" height="12" rx="3" fill="rgba(255,107,53,0.3)"/>
+      <rect x="60" y="28" width="16" height="12" rx="3" fill="rgba(255,255,255,0.1)"/>
+      <rect x="80" y="28" width="16" height="12" rx="3" fill="rgba(255,255,255,0.1)"/>
+      <rect x="100" y="28" width="10" height="12" rx="3" fill="rgba(255,255,255,0.1)"/>
+      <rect x="36" y="46" width="34" height="18" rx="3" fill="rgba(255,255,255,0.07)"/>
+      <rect x="75" y="46" width="37" height="18" rx="3" fill="rgba(255,255,255,0.07)"/>
+      <rect x="38" y="50" width="20" height="2" rx="1" fill="#0A2463" opacity="0.5"/>
+      <rect x="38" y="54" width="28" height="2" rx="1" fill="#FF6B35" opacity="0.4"/>
+      <rect x="38" y="58" width="16" height="2" rx="1" fill="#6366F1" opacity="0.4"/>
+    </svg>
+  </template>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+// ── TWEAKS PANEL ──────────────────────────────────────────────────────────
+
+// tweaks-panel.jsx
+// Reusable Tweaks shell + form-control helpers.
+//
+// Owns the host protocol (listens for __activate_edit_mode / __deactivate_edit_mode,
+// posts __edit_mode_available / __edit_mode_set_keys / __edit_mode_dismissed) so
+// individual prototypes don't re-roll it. Ships a consistent set of controls so you
+// don't hand-draw <input type="range">, segmented radios, steppers, etc.
+//
+// Usage (in an HTML file that loads React + Babel):
+//
+//   const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+//     "primaryColor": "#D97757",
+//     "fontSize": 16,
+//     "density": "regular",
+//     "dark": false
+//   }/*EDITMODE-END*/;
+//
+//   function App() {
+//     const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+//     return (
+//       <div style={{ fontSize: t.fontSize, color: t.primaryColor }}>
+//         Hello
+//         <TweaksPanel>
+//           <TweakSection label="Typography" />
+//           <TweakSlider label="Font size" value={t.fontSize} min={10} max={32} unit="px"
+//                        onChange={(v) => setTweak('fontSize', v)} />
+//           <TweakRadio  label="Density" value={t.density}
+//                        options={['compact', 'regular', 'comfy']}
+//                        onChange={(v) => setTweak('density', v)} />
+//           <TweakSection label="Theme" />
+//           <TweakColor  label="Primary" value={t.primaryColor}
+//                        onChange={(v) => setTweak('primaryColor', v)} />
+//           <TweakToggle label="Dark mode" value={t.dark}
+//                        onChange={(v) => setTweak('dark', v)} />
+//         </TweaksPanel>
+//       </div>
+//     );
+//   }
+//
+// ─────────────────────────────────────────────────────────────────────────────
+
+const __TWEAKS_STYLE = `
+  .twk-panel{position:fixed;right:16px;bottom:16px;z-index:2147483646;width:280px;
+    max-height:calc(100vh - 32px);display:flex;flex-direction:column;
+    background:rgba(250,249,247,.78);color:#29261b;
+    -webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);
+    border:.5px solid rgba(255,255,255,.6);border-radius:14px;
+    box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 40px rgba(0,0,0,.18);
+    font:11.5px/1.4 ui-sans-serif,system-ui,-apple-system,sans-serif;overflow:hidden}
+  .twk-hd{display:flex;align-items:center;justify-content:space-between;
+    padding:10px 8px 10px 14px;cursor:move;user-select:none}
+  .twk-hd b{font-size:12px;font-weight:600;letter-spacing:.01em}
+  .twk-x{appearance:none;border:0;background:transparent;color:rgba(41,38,27,.55);
+    width:22px;height:22px;border-radius:6px;cursor:default;font-size:13px;line-height:1}
+  .twk-x:hover{background:rgba(0,0,0,.06);color:#29261b}
+  .twk-body{padding:2px 14px 14px;display:flex;flex-direction:column;gap:10px;
+    overflow-y:auto;overflow-x:hidden;min-height:0;
+    scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.15) transparent}
+  .twk-body::-webkit-scrollbar{width:8px}
+  .twk-body::-webkit-scrollbar-track{background:transparent;margin:2px}
+  .twk-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px;
+    border:2px solid transparent;background-clip:content-box}
+  .twk-body::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25);
+    border:2px solid transparent;background-clip:content-box}
+  .twk-row{display:flex;flex-direction:column;gap:5px}
+  .twk-row-h{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+  .twk-lbl{display:flex;justify-content:space-between;align-items:baseline;
+    color:rgba(41,38,27,.72)}
+  .twk-lbl>span:first-child{font-weight:500}
+  .twk-val{color:rgba(41,38,27,.5);font-variant-numeric:tabular-nums}
+
+  .twk-sect{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:rgba(41,38,27,.45);padding:10px 0 0}
+  .twk-sect:first-child{padding-top:0}
+
+  .twk-field{appearance:none;width:100%;height:26px;padding:0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;
+    background:rgba(255,255,255,.6);color:inherit;font:inherit;outline:none}
+  .twk-field:focus{border-color:rgba(0,0,0,.25);background:rgba(255,255,255,.85)}
+  select.twk-field{padding-right:22px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='rgba(0,0,0,.5)' d='M0 0h10L5 6z'/></svg>");
+    background-repeat:no-repeat;background-position:right 8px center}
+
+  .twk-slider{appearance:none;-webkit-appearance:none;width:100%;height:4px;margin:6px 0;
+    border-radius:999px;background:rgba(0,0,0,.12);outline:none}
+  .twk-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+    width:14px;height:14px;border-radius:50%;background:#fff;
+    border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+  .twk-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
+    background:#fff;border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+
+  .twk-seg{position:relative;display:flex;padding:2px;border-radius:8px;
+    background:rgba(0,0,0,.06);user-select:none}
+  .twk-seg-thumb{position:absolute;top:2px;bottom:2px;border-radius:6px;
+    background:rgba(255,255,255,.9);box-shadow:0 1px 2px rgba(0,0,0,.12);
+    transition:left .15s cubic-bezier(.3,.7,.4,1),width .15s}
+  .twk-seg.dragging .twk-seg-thumb{transition:none}
+  .twk-seg button{appearance:none;position:relative;z-index:1;flex:1;border:0;
+    background:transparent;color:inherit;font:inherit;font-weight:500;min-height:22px;
+    border-radius:6px;cursor:default;padding:4px 6px;line-height:1.2;
+    overflow-wrap:anywhere}
+
+  .twk-toggle{position:relative;width:32px;height:18px;border:0;border-radius:999px;
+    background:rgba(0,0,0,.15);transition:background .15s;cursor:default;padding:0}
+  .twk-toggle[data-on="1"]{background:#34c759}
+  .twk-toggle i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+  .twk-toggle[data-on="1"] i{transform:translateX(14px)}
+
+  .twk-num{display:flex;align-items:center;height:26px;padding:0 0 0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;background:rgba(255,255,255,.6)}
+  .twk-num-lbl{font-weight:500;color:rgba(41,38,27,.6);cursor:ew-resize;
+    user-select:none;padding-right:8px}
+  .twk-num input{flex:1;min-width:0;height:100%;border:0;background:transparent;
+    font:inherit;font-variant-numeric:tabular-nums;text-align:right;padding:0 8px 0 0;
+    outline:none;color:inherit;-moz-appearance:textfield}
+  .twk-num input::-webkit-inner-spin-button,.twk-num input::-webkit-outer-spin-button{
+    -webkit-appearance:none;margin:0}
+  .twk-num-unit{padding-right:8px;color:rgba(41,38,27,.45)}
+
+  .twk-btn{appearance:none;height:26px;padding:0 12px;border:0;border-radius:7px;
+    background:rgba(0,0,0,.78);color:#fff;font:inherit;font-weight:500;cursor:default}
+  .twk-btn:hover{background:rgba(0,0,0,.88)}
+  .twk-btn.secondary{background:rgba(0,0,0,.06);color:inherit}
+  .twk-btn.secondary:hover{background:rgba(0,0,0,.1)}
+
+  .twk-swatch{appearance:none;-webkit-appearance:none;width:56px;height:22px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:6px;padding:0;cursor:default;
+    background:transparent;flex-shrink:0}
+  .twk-swatch::-webkit-color-swatch-wrapper{padding:0}
+  .twk-swatch::-webkit-color-swatch{border:0;border-radius:5.5px}
+  .twk-swatch::-moz-color-swatch{border:0;border-radius:5.5px}
+`;
+
+// ── useTweaks ───────────────────────────────────────────────────────────────
+// Single source of truth for tweak values. setTweak persists via the host
+// (__edit_mode_set_keys → host rewrites the EDITMODE block on disk).
+function useTweaks(defaults) {
+  const [values, setValues] = React.useState(defaults);
+  // Accepts either setTweak('key', value) or setTweak({ key: value, ... }) so a
+  // useState-style call doesn't write a "[object Object]" key into the persisted
+  // JSON block.
+  const setTweak = React.useCallback((keyOrEdits, val) => {
+    const edits = typeof keyOrEdits === 'object' && keyOrEdits !== null
+      ? keyOrEdits : { [keyOrEdits]: val };
+    setValues((prev) => ({ ...prev, ...edits }));
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*');
+  }, []);
+  return [values, setTweak];
+}
+
+// ── TweaksPanel ─────────────────────────────────────────────────────────────
+// Floating shell. Registers the protocol listener BEFORE announcing
+// availability — if the announce ran first, the host's activate could land
+// before our handler exists and the toolbar toggle would silently no-op.
+// The close button posts __edit_mode_dismissed so the host's toolbar toggle
+// flips off in lockstep; the host echoes __deactivate_edit_mode back which
+// is what actually hides the panel.
+function TweaksPanel({ title = 'Tweaks', children }) {
+  const [open, setOpen] = React.useState(false);
+  const dragRef = React.useRef(null);
+  const offsetRef = React.useRef({ x: 16, y: 16 });
+  const PAD = 16;
+
+  const clampToViewport = React.useCallback(() => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const w = panel.offsetWidth, h = panel.offsetHeight;
+    const maxRight = Math.max(PAD, window.innerWidth - w - PAD);
+    const maxBottom = Math.max(PAD, window.innerHeight - h - PAD);
+    offsetRef.current = {
+      x: Math.min(maxRight, Math.max(PAD, offsetRef.current.x)),
+      y: Math.min(maxBottom, Math.max(PAD, offsetRef.current.y)),
+    };
+    panel.style.right = offsetRef.current.x + 'px';
+    panel.style.bottom = offsetRef.current.y + 'px';
+  }, []);
+
+  React.useEffect(() => {
+    if (!open) return;
+    clampToViewport();
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', clampToViewport);
+      return () => window.removeEventListener('resize', clampToViewport);
+    }
+    const ro = new ResizeObserver(clampToViewport);
+    ro.observe(document.documentElement);
+    return () => ro.disconnect();
+  }, [open, clampToViewport]);
+
+  React.useEffect(() => {
+    const onMsg = (e) => {
+      const t = e?.data?.type;
+      if (t === '__activate_edit_mode') setOpen(true);
+      else if (t === '__deactivate_edit_mode') setOpen(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  const dismiss = () => {
+    setOpen(false);
+    window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*');
+  };
+
+  const onDragStart = (e) => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const r = panel.getBoundingClientRect();
+    const sx = e.clientX, sy = e.clientY;
+    const startRight = window.innerWidth - r.right;
+    const startBottom = window.innerHeight - r.bottom;
+    const move = (ev) => {
+      offsetRef.current = {
+        x: startRight - (ev.clientX - sx),
+        y: startBottom - (ev.clientY - sy),
+      };
+      clampToViewport();
+    };
+    const up = () => {
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', up);
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
+
+  if (!open) return null;
+  return (
+    <>
+      <style>{__TWEAKS_STYLE}</style>
+      <div ref={dragRef} className="twk-panel" data-noncommentable=""
+           style={{ right: offsetRef.current.x, bottom: offsetRef.current.y }}>
+        <div className="twk-hd" onMouseDown={onDragStart}>
+          <b>{title}</b>
+          <button className="twk-x" aria-label="Close tweaks"
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={dismiss}>✕</button>
+        </div>
+        <div className="twk-body">{children}</div>
+      </div>
+    </>
+  );
+}
+
+// ── Layout helpers ──────────────────────────────────────────────────────────
+
+function TweakSection({ label, children }) {
+  return (
+    <>
+      <div className="twk-sect">{label}</div>
+      {children}
+    </>
+  );
+}
+
+function TweakRow({ label, value, children, inline = false }) {
+  return (
+    <div className={inline ? 'twk-row twk-row-h' : 'twk-row'}>
+      <div className="twk-lbl">
+        <span>{label}</span>
+        {value != null && <span className="twk-val">{value}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+// ── Controls ────────────────────────────────────────────────────────────────
+
+function TweakSlider({ label, value, min = 0, max = 100, step = 1, unit = '', onChange }) {
+  return (
+    <TweakRow label={label} value={`${value}${unit}`}>
+      <input type="range" className="twk-slider" min={min} max={max} step={step}
+             value={value} onChange={(e) => onChange(Number(e.target.value))} />
+    </TweakRow>
+  );
+}
+
+function TweakToggle({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <button type="button" className="twk-toggle" data-on={value ? '1' : '0'}
+              role="switch" aria-checked={!!value}
+              onClick={() => onChange(!value)}><i /></button>
+    </div>
+  );
+}
+
+function TweakRadio({ label, value, options, onChange }) {
+  const trackRef = React.useRef(null);
+  const [dragging, setDragging] = React.useState(false);
+  const opts = options.map((o) => (typeof o === 'object' ? o : { value: o, label: o }));
+  const idx = Math.max(0, opts.findIndex((o) => o.value === value));
+  const n = opts.length;
+
+  // The active value is read by pointer-move handlers attached for the lifetime
+  // of a drag — ref it so a stale closure doesn't fire onChange for every move.
+  const valueRef = React.useRef(value);
+  valueRef.current = value;
+
+  const segAt = (clientX) => {
+    const r = trackRef.current.getBoundingClientRect();
+    const inner = r.width - 4;
+    const i = Math.floor(((clientX - r.left - 2) / inner) * n);
+    return opts[Math.max(0, Math.min(n - 1, i))].value;
+  };
+
+  const onPointerDown = (e) => {
+    setDragging(true);
+    const v0 = segAt(e.clientX);
+    if (v0 !== valueRef.current) onChange(v0);
+    const move = (ev) => {
+      if (!trackRef.current) return;
+      const v = segAt(ev.clientX);
+      if (v !== valueRef.current) onChange(v);
+    };
+    const up = () => {
+      setDragging(false);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
+  return (
+    <TweakRow label={label}>
+      <div ref={trackRef} role="radiogroup" onPointerDown={onPointerDown}
+           className={dragging ? 'twk-seg dragging' : 'twk-seg'}>
+        <div className="twk-seg-thumb"
+             style={{ left: `calc(2px + ${idx} * (100% - 4px) / ${n})`,
+                      width: `calc((100% - 4px) / ${n})` }} />
+        {opts.map((o) => (
+          <button key={o.value} type="button" role="radio" aria-checked={o.value === value}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </TweakRow>
+  );
+}
+
+function TweakSelect({ label, value, options, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <select className="twk-field" value={value} onChange={(e) => onChange(e.target.value)}>
+        {options.map((o) => {
+          const v = typeof o === 'object' ? o.value : o;
+          const l = typeof o === 'object' ? o.label : o;
+          return <option key={v} value={v}>{l}</option>;
+        })}
+      </select>
+    </TweakRow>
+  );
+}
+
+function TweakText({ label, value, placeholder, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <input className="twk-field" type="text" value={value} placeholder={placeholder}
+             onChange={(e) => onChange(e.target.value)} />
+    </TweakRow>
+  );
+}
+
+function TweakNumber({ label, value, min, max, step = 1, unit = '', onChange }) {
+  const clamp = (n) => {
+    if (min != null && n < min) return min;
+    if (max != null && n > max) return max;
+    return n;
+  };
+  const startRef = React.useRef({ x: 0, val: 0 });
+  const onScrubStart = (e) => {
+    e.preventDefault();
+    startRef.current = { x: e.clientX, val: value };
+    const decimals = (String(step).split('.')[1] || '').length;
+    const move = (ev) => {
+      const dx = ev.clientX - startRef.current.x;
+      const raw = startRef.current.val + dx * step;
+      const snapped = Math.round(raw / step) * step;
+      onChange(clamp(Number(snapped.toFixed(decimals))));
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+  return (
+    <div className="twk-num">
+      <span className="twk-num-lbl" onPointerDown={onScrubStart}>{label}</span>
+      <input type="number" value={value} min={min} max={max} step={step}
+             onChange={(e) => onChange(clamp(Number(e.target.value)))} />
+      {unit && <span className="twk-num-unit">{unit}</span>}
+    </div>
+  );
+}
+
+function TweakColor({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <input type="color" className="twk-swatch" value={value}
+             onChange={(e) => onChange(e.target.value)} />
+    </div>
+  );
+}
+
+function TweakButton({ label, onClick, secondary = false }) {
+  return (
+    <button type="button" className={secondary ? 'twk-btn secondary' : 'twk-btn'}
+            onClick={onClick}>{label}</button>
+  );
+}
+
+
+
+// ── LEADS PAGE ────────────────────────────────────────────────────────────
+// LeadsPage — enhanced with source icons, drawer, chat timeline, behavior
+// Source icon definitions — using simple colored circles + letter to avoid SVG inline issues
+const SOURCES = {
+  Facebook:  { letter:"f",  color:"#1877F2", bg:"#E8F0FE" },
+  Instagram: { letter:"ig", color:"#E1306C", bg:"#FDE8F0" },
+  LinkedIn:  { letter:"in", color:"#0A66C2", bg:"#E8F2FF" },
+  Web:       { letter:"w",  color:"#6366F1", bg:"#EEEFFF" },
+  WhatsApp:  { letter:"wa", color:"#25D366", bg:"#E8FAF0" },
+  Email:     { letter:"@",  color:"#FF6B35", bg:"#FFF0EA" },
+};
+
+const INTERESTS = {
+  "Auto":       { color:"#6366F1", bg:"#EEEFFF" },
+  "Propiedad":  { color:"#0A2463", bg:"#EEF4FF" },
+  "Servicio":   { color:"#FF6B35", bg:"#FFF0EA" },
+};
+
+const CHANNEL_ICONS = {
+  "Llamada":  "📞",
+  "WhatsApp": "💬",
+  "Email":    "📧",
+  "Reunión":  "📅",
+};
+
+const INTEREST_ICONS = {
+  "Auto":      "🚗",
+  "Propiedad": "🏠",
+  "Servicio":  "⚙️",
+};
+
+const ALL_LEADS = [
+  { id:1,  name:"Valentina Ruiz",    country:"Chile",     flag:"🇨🇱", vendor:"Carlos M.", state:"Nuevo",       date:"02 May 2026", email:"v.ruiz@gmail.com",    phone:"+56 9 1234 5678", color:"#6366F1", value:4200,  source:"Facebook",  interest:"Auto",      lastContact:"01 May 2026", channel:"WhatsApp", pages:["inicio","autos","cotizar"], timeOnSite:"4m 32s" },
+  { id:2,  name:"Jorge Ramírez",     country:"México",    flag:"🇲🇽", vendor:"Ana P.",    state:"Contactado",  date:"01 May 2026", email:"j.ramirez@corp.mx",   phone:"+52 55 9876 5432", color:"#FF6B35", value:8700,  source:"LinkedIn",  interest:"Servicio",  lastContact:"30 Abr 2026", channel:"Email",    pages:["inicio","servicios","precios"], timeOnSite:"7m 18s" },
+  { id:3,  name:"Isabel Fernández",  country:"España",    flag:"🇪🇸", vendor:"Luis T.",   state:"En proceso",  date:"30 Abr 2026", email:"i.fernandez@es.com",  phone:"+34 91 234 5678",  color:"#8B5CF6", value:12500, source:"Web",       interest:"Propiedad", lastContact:"29 Abr 2026", channel:"Reunión",  pages:["inicio","propiedades","demo"], timeOnSite:"12m 05s" },
+  { id:4,  name:"Roberto Núñez",     country:"Panamá",    flag:"🇵🇦", vendor:"Carlos M.", state:"Cerrado",     date:"29 Abr 2026", email:"r.nunez@pa.net",      phone:"+507 6234 5678",   color:"#0EA5E9", value:15000, source:"WhatsApp",  interest:"Propiedad", lastContact:"28 Abr 2026", channel:"Llamada",  pages:["propiedades","contacto"], timeOnSite:"3m 44s" },
+  { id:5,  name:"Gabriela Torres",   country:"Venezuela", flag:"🇻🇪", vendor:"María G.",  state:"Nuevo",       date:"28 Abr 2026", email:"g.torres@ve.com",     phone:"+58 414 1234567",  color:"#EC4899", value:3100,  source:"Instagram", interest:"Auto",      lastContact:"27 Abr 2026", channel:"WhatsApp", pages:["inicio","autos"], timeOnSite:"2m 10s" },
+  { id:6,  name:"Alejandro Vega",    country:"Chile",     flag:"🇨🇱", vendor:"Ana P.",    state:"En proceso",  date:"27 Abr 2026", email:"a.vega@cl.net",       phone:"+56 9 8765 4321",  color:"#F59E0B", value:6800,  source:"Email",     interest:"Servicio",  lastContact:"26 Abr 2026", channel:"Email",    pages:["servicios","blog","precios"], timeOnSite:"9m 22s" },
+  { id:7,  name:"Camila Herrera",    country:"México",    flag:"🇲🇽", vendor:"Luis T.",   state:"Contactado",  date:"26 Abr 2026", email:"c.herrera@mx.io",     phone:"+52 33 5555 6789", color:"#22C55E", value:9200,  source:"Facebook",  interest:"Auto",      lastContact:"25 Abr 2026", channel:"Llamada",  pages:["inicio","autos","cotizar","contacto"], timeOnSite:"6m 50s" },
+  { id:8,  name:"Diego Castillo",    country:"España",    flag:"🇪🇸", vendor:"María G.",  state:"Cerrado",     date:"25 Abr 2026", email:"d.castillo@es.org",   phone:"+34 93 876 5432",  color:"#14B8A6", value:18500, source:"LinkedIn",  interest:"Servicio",  lastContact:"24 Abr 2026", channel:"Reunión",  pages:["servicios","demo","precios"], timeOnSite:"15m 30s" },
+  { id:9,  name:"Sofía Mendoza",     country:"Panamá",    flag:"🇵🇦", vendor:"Carlos M.", state:"Nuevo",       date:"24 Abr 2026", email:"s.mendoza@pa.com",    phone:"+507 6987 6543",   color:"#F97316", value:5400,  source:"Web",       interest:"Propiedad", lastContact:"23 Abr 2026", channel:"Email",    pages:["propiedades"], timeOnSite:"1m 55s" },
+  { id:10, name:"Andrés Morales",    country:"Chile",     flag:"🇨🇱", vendor:"Ana P.",    state:"Contactado",  date:"23 Abr 2026", email:"a.morales@cl.cl",     phone:"+56 9 3456 7890",  color:"#3B82F6", value:7600,  source:"Instagram", interest:"Auto",      lastContact:"22 Abr 2026", channel:"WhatsApp", pages:["inicio","autos","blog"], timeOnSite:"5m 12s" },
+  { id:11, name:"Patricia Salinas",  country:"Venezuela", flag:"🇻🇪", vendor:"Luis T.",   state:"En proceso",  date:"22 Abr 2026", email:"p.salinas@ve.net",    phone:"+58 212 9876543",  color:"#A855F7", value:4900,  source:"WhatsApp",  interest:"Servicio",  lastContact:"21 Abr 2026", channel:"WhatsApp", pages:["servicios","cotizar"], timeOnSite:"3m 08s" },
+  { id:12, name:"Fernando Jiménez",  country:"México",    flag:"🇲🇽", vendor:"María G.",  state:"Cerrado",     date:"21 Abr 2026", email:"f.jimenez@mx.com",    phone:"+52 55 1234 9876", color:"#EF4444", value:22000, source:"Email",     interest:"Propiedad", lastContact:"20 Abr 2026", channel:"Reunión",  pages:["propiedades","demo","precios","contacto"], timeOnSite:"18m 44s" },
+  { id:13, name:"Lucía Paredes",     country:"España",    flag:"🇪🇸", vendor:"Carlos M.", state:"Nuevo",       date:"20 Abr 2026", email:"l.paredes@es.es",     phone:"+34 91 555 4321",  color:"#06B6D4", value:3800,  source:"Facebook",  interest:"Auto",      lastContact:"19 Abr 2026", channel:"Email",    pages:["inicio","autos"], timeOnSite:"2m 30s" },
+  { id:14, name:"Marcos Delgado",    country:"Chile",     flag:"🇨🇱", vendor:"Ana P.",    state:"Cerrado",     date:"19 Abr 2026", email:"m.delgado@cl.com",    phone:"+56 9 7890 1234",  color:"#84CC16", value:16400, source:"LinkedIn",  interest:"Servicio",  lastContact:"18 Abr 2026", channel:"Llamada",  pages:["servicios","demo","precios"], timeOnSite:"11m 20s" },
+  { id:15, name:"Rosa Contreras",    country:"Panamá",    flag:"🇵🇦", vendor:"Luis T.",   state:"Contactado",  date:"18 Abr 2026", email:"r.contreras@pa.org",  phone:"+507 6543 2109",   color:"#F43F5E", value:8100,  source:"Web",       interest:"Propiedad", lastContact:"17 Abr 2026", channel:"WhatsApp", pages:["propiedades","blog"], timeOnSite:"4m 00s" },
+];
+
+// Chat history per lead
+const CHAT_HISTORIES = {
+  1: [
+    { role:"bot",  time:"01 May, 09:14", text:"¡Hola Valentina! Vi que estuviste revisando nuestra sección de autos. ¿Te puedo ayudar a encontrar el modelo ideal?" },
+    { role:"user", time:"01 May, 09:16", text:"Hola, sí me interesa el SUV que vi en la web. ¿Tienen financiamiento disponible?" },
+    { role:"bot",  time:"01 May, 09:17", text:"¡Claro que sí! Contamos con planes desde 0% de interés en los primeros 6 meses. ¿Quieres que te envíe los detalles por WhatsApp?" },
+    { role:"user", time:"01 May, 09:18", text:"Perfecto, mándame la info al +56 9 1234 5678" },
+    { role:"bot",  time:"01 May, 09:18", text:"Listo, te acabo de enviar la info. Carlos Martínez de nuestro equipo te contactará hoy mismo. 👍" },
+    { role:"agent",time:"01 May, 14:30", text:"Valentina, te escribo de LeadPro. ¿Tienes 10 min hoy para una llamada rápida sobre el financiamiento?", agent:"Carlos M." },
+  ],
+  2: [
+    { role:"bot",  time:"30 Abr, 11:00", text:"Hola Jorge, gracias por visitar nuestros planes de servicio. ¿Qué tipo de solución estás buscando para tu empresa?" },
+    { role:"user", time:"30 Abr, 11:05", text:"Buscamos un CRM para manejar nuestros 50+ vendedores en México." },
+    { role:"bot",  time:"30 Abr, 11:06", text:"Excelente, el plan Enterprise sería perfecto para ti. ¿Te agendo una demo personalizada esta semana?" },
+    { role:"agent",time:"30 Abr, 15:20", text:"Jorge, adjunto la propuesta Enterprise para tu equipo. ¿Cuándo podemos hablar?", agent:"Ana P." },
+    { role:"user", time:"30 Abr, 16:00", text:"Mañana a las 10am me viene bien." },
+  ],
+};
+
+const DEFAULT_CHAT = [
+  { role:"bot",  time:"Ayer, 10:00", text:"¡Hola! Notamos que visitaste nuestra página. ¿En qué podemos ayudarte hoy?" },
+  { role:"user", time:"Ayer, 10:03", text:"Me interesa saber más sobre sus servicios." },
+  { role:"bot",  time:"Ayer, 10:04", text:"Con gusto te ayudo. ¿Qué tipo de solución estás buscando específicamente?" },
+];
+
+// Source icon chip — uses colored letter badge, no inline SVG
+function SourceChip({ source }) {
+  const s = SOURCES[source];
+  if (!s) return <span style={{fontSize:12,color:"#9EA3BD"}}>{source}</span>;
+  return (
+    <div style={{display:"inline-flex",alignItems:"center",gap:5,padding:"3px 8px",borderRadius:99,background:s.bg}}>
+      <div style={{width:16,height:16,borderRadius:"50%",background:s.color,display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:800,color:"#fff",flexShrink:0,letterSpacing:"-0.02em"}}>
+        {s.letter.toUpperCase().slice(0,2)}
+      </div>
+      <span style={{fontSize:11,fontWeight:700,color:s.color}}>{source}</span>
+    </div>
+  );
+}
+
+// Interest badge
+function InterestBadge({ interest }) {
+  const cfg = INTERESTS[interest] || {color:"#9EA3BD",bg:"#F5F6FA"};
+  const icon = INTEREST_ICONS[interest] || "⚙️";
+  return (
+    <span style={{display:"inline-flex",alignItems:"center",gap:4,padding:"3px 9px",borderRadius:99,fontSize:11,fontWeight:600,background:cfg.bg,color:cfg.color}}>
+      {icon} {interest}
+    </span>
+  );
+}
+
+// Chat timeline bubble
+function ChatBubble({ msg }) {
+  const isUser  = msg.role === "user";
+  const isAgent = msg.role === "agent";
+  return (
+    <div style={{display:"flex",flexDirection:"column",alignItems:isUser?"flex-end":"flex-start",gap:3,marginBottom:10}}>
+      {isAgent && <div style={{fontSize:10,fontWeight:700,color:"#FF6B35",marginLeft:36}}>{msg.agent}</div>}
+      <div style={{display:"flex",alignItems:"flex-end",gap:6,flexDirection:isUser?"row-reverse":"row"}}>
+        {!isUser && (
+          <div style={{width:24,height:24,borderRadius:7,background:isAgent?"#FF6B35":"#0A2463",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,flexShrink:0}}>
+            {isAgent?"👤":"🤖"}
+          </div>
+        )}
+        <div style={{
+          maxWidth:"75%",padding:"8px 12px",borderRadius:isUser?"12px 12px 4px 12px":"12px 12px 12px 4px",
+          background:isUser?"#0A2463":isAgent?"#FFF4EE":"#F5F6FA",
+          color:isUser?"#fff":isAgent?"#FF6B35":"#1A1D2E",
+          fontSize:12.5,lineHeight:1.5,
+        }}>{msg.text}</div>
+      </div>
+      <div style={{fontSize:10,color:"#C0C4D8",marginLeft:isUser?0:30}}>{msg.time}</div>
+    </div>
+  );
+}
+
+// Lead Drawer
+function LeadDrawer({ lead, onClose, accent, primary }) {
+  const [activeTab, setActiveTab] = React.useState("perfil");
+  const [chatInput, setChatInput] = React.useState("");
+  const [chatMsgs, setChatMsgs] = React.useState(CHAT_HISTORIES[lead.id] || DEFAULT_CHAT);
+  const chatEndRef = React.useRef(null);
+
+  React.useEffect(()=>{
+    if(chatEndRef.current) chatEndRef.current.scrollTop = chatEndRef.current.scrollHeight;
+  },[chatMsgs]);
+
+  const sendMsg = () => {
+    if(!chatInput.trim()) return;
+    setChatMsgs(prev=>[...prev, {role:"agent",time:"Ahora",text:chatInput,agent:"Carlos M."}]);
+    setChatInput("");
+    setTimeout(()=>{
+      setChatMsgs(prev=>[...prev,{role:"bot",time:"Ahora",text:"Mensaje registrado. El lead será notificado por "+ (lead.channel||"email") +". 📬"}]);
+    },800);
+  };
+
+  const tabs = [
+    {id:"perfil",   label:"Perfil"},
+    {id:"chat",     label:"Conversación"},
+    {id:"comportamiento", label:"Comportamiento"},
+    {id:"docs",     label:"Datos & Docs"},
+  ];
+
+  const badge = {
+    "Nuevo":      {cls:"b-nuevo",     label:"Nuevo"},
+    "Contactado": {cls:"b-contactado",label:"Contactado"},
+    "En proceso": {cls:"b-enproceso", label:"En proceso"},
+    "Cerrado":    {cls:"b-cerrado",   label:"Cerrado"},
+  }[lead.state] || {cls:"b-nuevo",label:"Nuevo"};
+
+  return (
+    <>
+      {/* Overlay */}
+      <div onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(10,36,99,0.25)",zIndex:800,backdropFilter:"blur(2px)",animation:"fadeIn 0.2s ease"}}/>
+      {/* Drawer */}
+      <div style={{
+        position:"fixed",top:0,right:0,bottom:0,width:460,
+        background:"#fff",zIndex:900,
+        boxShadow:"-8px 0 40px rgba(10,36,99,0.14)",
+        display:"flex",flexDirection:"column",
+        animation:"slideRight 0.25s cubic-bezier(0.34,1.2,0.64,1)",
+        overflow:"hidden",
+      }}>
+        {/* Header */}
+        <div style={{padding:"20px 20px 0",borderBottom:"1px solid #F0F2FA",paddingBottom:16}}>
+          <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:14}}>
+            <div style={{display:"flex",alignItems:"center",gap:12}}>
+              <div style={{width:46,height:46,borderRadius:12,background:lead.color,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,fontWeight:800,color:"#fff",flexShrink:0}}>
+                {lead.name.split(" ").map(w=>w[0]).join("").slice(0,2)}
+              </div>
+              <div>
+                <div style={{fontSize:16,fontWeight:800,color:"#1A1D2E"}}>{lead.name}</div>
+                <div style={{display:"flex",alignItems:"center",gap:6,marginTop:3}}>
+                  <span style={{fontSize:13}}>{lead.flag}</span>
+                  <span style={{fontSize:12.5,color:"#9EA3BD"}}>{lead.country}</span>
+                  <span style={{fontSize:10,color:"#C0C4D8"}}>·</span>
+                  <span className={`badge ${badge.cls}`} style={{fontSize:10.5,padding:"2px 8px"}}><span className="badge-dot"/>{badge.label}</span>
+                </div>
+              </div>
+            </div>
+            <button onClick={onClose} style={{width:30,height:30,border:"none",background:"#F5F6FA",borderRadius:8,cursor:"pointer",fontSize:14,color:"#6B7099",display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
+          </div>
+
+          {/* Action buttons */}
+          <div style={{display:"flex",gap:8,marginBottom:14}}>
+            {[
+              {icon:"📞",label:"Llamar",    bg:primary,   color:"#fff"},
+              {icon:"💬",label:"WhatsApp",  bg:"#25D366", color:"#fff"},
+              {icon:"📧",label:"Email",     bg:accent,    color:"#fff"},
+              {icon:"👤",label:"Asignar",   bg:"#F5F6FA", color:"#1A1D2E"},
+            ].map(a=>(
+              <button key={a.label} style={{flex:1,height:34,background:a.bg,color:a.color,border:"none",borderRadius:9,fontSize:11,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:4,transition:"opacity 0.15s"}}
+                onMouseEnter={e=>e.currentTarget.style.opacity="0.85"}
+                onMouseLeave={e=>e.currentTarget.style.opacity="1"}>
+                {a.icon} {a.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Tabs */}
+          <div style={{display:"flex",gap:0}}>
+            {tabs.map(t=>(
+              <div key={t.id} onClick={()=>setActiveTab(t.id)} style={{
+                flex:1,padding:"7px 4px",textAlign:"center",cursor:"pointer",
+                fontSize:11.5,fontWeight:600,
+                color:activeTab===t.id?primary:"#9EA3BD",
+                borderBottom:activeTab===t.id?`2px solid ${primary}`:"2px solid transparent",
+                transition:"all 0.15s",
+              }}>{t.label}</div>
+            ))}
+          </div>
+        </div>
+
+        {/* Body */}
+        <div style={{flex:1,overflow:"hidden",display:"flex",flexDirection:"column"}}>
+
+          {/* PERFIL */}
+          {activeTab==="perfil" && (
+            <div style={{padding:"16px 20px",overflow:"auto",display:"flex",flexDirection:"column",gap:12}}>
+              {[
+                {label:"Email",         val:lead.email,       icon:"📧"},
+                {label:"Teléfono",      val:lead.phone,       icon:"📞"},
+                {label:"Vendedor",      val:lead.vendor,      icon:"👤"},
+                {label:"Fuente",        val:<SourceChip source={lead.source}/>, icon:"🔗"},
+                {label:"Interés",       val:<InterestBadge interest={lead.interest}/>, icon:"🎯"},
+                {label:"Canal seguim.", val:(CHANNEL_ICONS[lead.channel]||"📡")+" "+lead.channel, icon:"📡"},
+                {label:"Último contacto",val:lead.lastContact, icon:"🕐"},
+                {label:"Valor estim.",  val:`$${(lead.value/1000).toFixed(1)}k`, icon:"💰"},
+              ].map(row=>(
+                <div key={row.label} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",background:"#F9FAFD",borderRadius:10}}>
+                  <span style={{fontSize:16,width:22,textAlign:"center"}}>{row.icon}</span>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:10.5,fontWeight:600,color:"#9EA3BD",letterSpacing:"0.04em",textTransform:"uppercase"}}>{row.label}</div>
+                    <div style={{fontSize:13,fontWeight:600,color:"#1A1D2E",marginTop:1}}>{row.val}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* CHAT */}
+          {activeTab==="chat" && (
+            <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
+              <div ref={chatEndRef} style={{flex:1,overflow:"auto",padding:"16px 20px"}}>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:16}}>
+                  <div style={{height:1,flex:1,background:"#F0F2FA"}}/>
+                  <span style={{fontSize:11,color:"#C0C4D8",fontWeight:600}}>Historial de conversación IA</span>
+                  <div style={{height:1,flex:1,background:"#F0F2FA"}}/>
+                </div>
+                {chatMsgs.map((m,i)=><ChatBubble key={i} msg={m}/>)}
+              </div>
+              <div style={{padding:"12px 16px",borderTop:"1px solid #F0F2FA",display:"flex",gap:8}}>
+                <input value={chatInput} onChange={e=>setChatInput(e.target.value)}
+                  onKeyDown={e=>e.key==="Enter"&&sendMsg()}
+                  placeholder="Escribe un mensaje al lead…"
+                  style={{flex:1,height:38,padding:"0 12px",background:"#F5F6FA",border:"1.5px solid #E8EAF2",borderRadius:9,fontFamily:"inherit",fontSize:13,outline:"none"}}/>
+                <button onClick={sendMsg} style={{height:38,padding:"0 14px",background:accent,color:"#fff",border:"none",borderRadius:9,fontWeight:700,fontSize:13,cursor:"pointer"}}>↑</button>
+              </div>
+            </div>
+          )}
+
+          {/* COMPORTAMIENTO */}
+          {activeTab==="comportamiento" && (
+            <div style={{padding:"16px 20px",overflow:"auto",display:"flex",flexDirection:"column",gap:14}}>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+                {[
+                  {label:"Tiempo en sitio",val:lead.timeOnSite,    icon:"⏱",color:primary},
+                  {label:"Páginas vistas", val:lead.pages.length,  icon:"📄",color:"#6366F1"},
+                  {label:"Fuente entrada", val:lead.source,         icon:"🔗",color:SOURCES[lead.source]?.color||"#9EA3BD"},
+                  {label:"Canal actual",   val:lead.channel,        icon:"📡",color:accent},
+                ].map(m=>(
+                  <div key={m.label} style={{background:"#F9FAFD",borderRadius:12,padding:"14px",display:"flex",flexDirection:"column",gap:4}}>
+                    <div style={{fontSize:20}}>{m.icon}</div>
+                    <div style={{fontSize:18,fontWeight:800,color:m.color}}>{m.val}</div>
+                    <div style={{fontSize:10.5,color:"#9EA3BD",fontWeight:600}}>{m.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div>
+                <div style={{fontSize:11.5,fontWeight:700,color:"#1A1D2E",marginBottom:10}}>Páginas visitadas</div>
+                <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                  {lead.pages.map((pg,i)=>(
+                    <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 12px",background:"#F9FAFD",borderRadius:9}}>
+                      <div style={{width:22,height:22,borderRadius:6,background:`${primary}18`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,color:primary}}>{i+1}</div>
+                      <span style={{fontSize:13,fontWeight:500,color:"#1A1D2E",textTransform:"capitalize"}}>/{pg}</span>
+                      <div style={{marginLeft:"auto",height:4,width:60,background:"#F0F2FA",borderRadius:99,overflow:"hidden"}}>
+                        <div style={{height:"100%",width:`${100-(i*20)}%`,background:primary,borderRadius:99}}/>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{background:"#F9FAFD",borderRadius:12,padding:"14px"}}>
+                <div style={{fontSize:11.5,fontWeight:700,color:"#1A1D2E",marginBottom:8}}>Datos del dispositivo</div>
+                {[
+                  {k:"Dispositivo",  v:"Mobile · iPhone 14"},
+                  {k:"Navegador",    v:"Safari 17"},
+                  {k:"Ubicación IP", v:lead.country+" (estimado)"},
+                  {k:"Sesiones",     v:lead.pages.length+" páginas"},
+                ].map(d=>(
+                  <div key={d.k} style={{display:"flex",justifyContent:"space-between",fontSize:12.5,marginBottom:5}}>
+                    <span style={{color:"#9EA3BD",fontWeight:500}}>{d.k}</span>
+                    <span style={{fontWeight:600,color:"#1A1D2E"}}>{d.v}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* DOCS */}
+          {activeTab==="docs" && (
+            <div style={{padding:"16px 20px",overflow:"auto",display:"flex",flexDirection:"column",gap:12}}>
+              <div style={{background:"#FFFBEA",border:"1.5px solid #FDE68A",borderRadius:12,padding:"12px 14px",display:"flex",gap:10,alignItems:"flex-start"}}>
+                <span style={{fontSize:18}}>⚠️</span>
+                <div>
+                  <div style={{fontSize:13,fontWeight:700,color:"#92400E"}}>Datos pendientes</div>
+                  <div style={{fontSize:12,color:"#B45309",marginTop:2}}>Este lead dejó información incompleta en el formulario demo.</div>
+                </div>
+              </div>
+
+              <div style={{fontSize:12,fontWeight:700,color:"#9EA3BD",letterSpacing:"0.06em",textTransform:"uppercase",marginTop:4}}>Datos del formulario</div>
+              {[
+                {label:"Nombre",       val:lead.name,                 done:true},
+                {label:"Email",        val:lead.email,                done:true},
+                {label:"Empresa",      val:"—",                       done:false},
+                {label:"Industria",    val:lead.interest,             done:true},
+                {label:"País",         val:lead.country,              done:true},
+                {label:"Equipo ventas",val:"—",                       done:false},
+                {label:"Teléfono",     val:lead.phone,                done:true},
+                {label:"¿Cómo nos encontró?",val:lead.source,        done:true},
+              ].map(f=>(
+                <div key={f.label} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",background:f.done?"#F9FAFD":"#FFF4EE",borderRadius:9,border:`1px solid ${f.done?"#F0F2FA":"#FDE0CC"}`}}>
+                  <span style={{fontSize:14,width:18,textAlign:"center"}}>{f.done?"✅":"❌"}</span>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:10.5,fontWeight:600,color:"#9EA3BD"}}>{f.label}</div>
+                    <div style={{fontSize:13,fontWeight:600,color:f.done?"#1A1D2E":"#FF6B35"}}>{f.val}</div>
+                  </div>
+                </div>
+              ))}
+
+              <div style={{fontSize:12,fontWeight:700,color:"#9EA3BD",letterSpacing:"0.06em",textTransform:"uppercase",marginTop:4}}>Documentos</div>
+              <div style={{background:"#F9FAFD",borderRadius:12,padding:"20px",textAlign:"center",border:"1.5px dashed #E8EAF2"}}>
+                <div style={{fontSize:28,marginBottom:8}}>📎</div>
+                <div style={{fontSize:13,fontWeight:600,color:"#C0C4D8"}}>Sin documentos adjuntos</div>
+                <button style={{marginTop:12,padding:"6px 16px",background:accent,color:"#fff",border:"none",borderRadius:8,fontSize:12,fontWeight:700,cursor:"pointer"}}>+ Subir archivo</button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      <style>{`
+        @keyframes slideRight { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+      `}</style>
+    </>
+  );
+}
+
+function LeadsPage({ accent, primary }) {
+  const [search, setSearch]       = React.useState("");
+  const [filterCountry, setFC]    = React.useState("Todos");
+  const [filterState, setFS]      = React.useState("Todos");
+  const [filterVendor, setFV]     = React.useState("Todos");
+  const [filterSource, setFSrc]   = React.useState("Todos");
+  const [filterInterest, setFInt] = React.useState("Todos");
+  const [sortCol, setSortCol]     = React.useState("date");
+  const [sortDir, setSortDir]     = React.useState("desc");
+  const [showModal, setShowModal] = React.useState(false);
+  const [drawerLead, setDrawerLead] = React.useState(null);
+  const [localLeads, setLocalLeads] = React.useState(ALL_LEADS);
+
+  const filtered = localLeads.filter(l => {
+    const q = search.toLowerCase();
+    return (!q || l.name.toLowerCase().includes(q) || l.email.toLowerCase().includes(q))
+      && (filterCountry==="Todos"  || l.country===filterCountry)
+      && (filterState==="Todos"    || l.state===filterState)
+      && (filterVendor==="Todos"   || l.vendor===filterVendor)
+      && (filterSource==="Todos"   || l.source===filterSource)
+      && (filterInterest==="Todos" || l.interest===filterInterest);
+  });
+
+  const sorted = [...filtered].sort((a,b)=>{
+    const dir = sortDir==="asc"?1:-1;
+    if(sortCol==="name")  return dir*a.name.localeCompare(b.name);
+    if(sortCol==="value") return dir*(a.value-b.value);
+    if(sortCol==="date")  return dir*a.date.localeCompare(b.date);
+    return 0;
+  });
+
+  const handleSort = col => {
+    if(sortCol===col) setSortDir(d=>d==="asc"?"desc":"asc");
+    else { setSortCol(col); setSortDir("asc"); }
+  };
+
+  const stateCount = st => localLeads.filter(l=>l.state===st).length;
+
+  const handleSave = form => {
+    const colors = ["#6366F1","#FF6B35","#8B5CF6","#0EA5E9","#22C55E","#F59E0B"];
+    const flagMap = {Chile:"🇨🇱",México:"🇲🇽",España:"🇪🇸",Panamá:"🇵🇦",Venezuela:"🇻🇪",Argentina:"🇦🇷",EEUU:"🇺🇸"};
+    setLocalLeads(prev=>[{
+      id:Date.now(), ...form,
+      flag:flagMap[form.country]||"🌍",
+      color:colors[Math.floor(Math.random()*colors.length)],
+      email:form.email||"—", phone:form.phone||"—",
+      value:Number(form.value)||0,
+      date:new Date().toLocaleDateString("es-CL",{day:"2-digit",month:"short",year:"numeric"}),
+      source:form.source||"Web", interest:form.interest||"Servicio",
+      lastContact:"Hoy", channel:form.channel||"Email",
+      pages:["inicio"], timeOnSite:"0m",
+    },...prev]);
+    setShowModal(false);
+  };
+
+  const BADGE_MAP = {
+    "Nuevo":      {cls:"b-nuevo",     label:"Nuevo"},
+    "Contactado": {cls:"b-contactado",label:"Contactado"},
+    "En proceso": {cls:"b-enproceso", label:"En proceso"},
+    "Cerrado":    {cls:"b-cerrado",   label:"Cerrado"},
+  };
+
+  const fmtMoney = n => n>=1000?`$${(n/1000).toFixed(1)}k`:`$${n}`;
+
+  return (
+    <div className="content" style={{paddingRight: drawerLead?480:26, transition:"padding-right 0.25s ease"}}>
+      {drawerLead && <LeadDrawer lead={drawerLead} onClose={()=>setDrawerLead(null)} accent={accent} primary={primary}/>}
+
+      {showModal && (
+        <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setShowModal(false)}>
+          <div className="modal">
+            <div className="modal-header">
+              <div className="modal-title">Nuevo Lead</div>
+              <button className="modal-close" onClick={()=>setShowModal(false)}>✕</button>
+            </div>
+            <NewLeadForm onSave={handleSave} onClose={()=>setShowModal(false)} accent={accent}/>
+          </div>
+        </div>
+      )}
+
+      <div className="page-header">
+        <div>
+          <div className="page-title">Leads</div>
+          <div className="page-sub">{sorted.length} de {localLeads.length} registros</div>
+        </div>
+        <div style={{display:"flex",gap:8}}>
+          <button className="btn btn-outline">📥 Importar</button>
+          <button className="btn btn-outline">📤 Exportar</button>
+          <button className="btn btn-primary" style={{background:accent}} onClick={()=>setShowModal(true)}>+ Nuevo Lead</button>
+        </div>
+      </div>
+
+      {/* Status pills */}
+      <div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap"}}>
+        {[
+          {label:"Total",     val:localLeads.length,        color:primary,   bg:"#EEF4FF"},
+          {label:"Nuevo",     val:stateCount("Nuevo"),      color:"#3B82F6", bg:"#EEF4FF"},
+          {label:"Contactado",val:stateCount("Contactado"), color:"#FF6B35", bg:"#FFF4EE"},
+          {label:"En proceso",val:stateCount("En proceso"), color:"#F59E0B", bg:"#FFFBEA"},
+          {label:"Cerrado",   val:stateCount("Cerrado"),    color:"#22C55E", bg:"#EDFAF4"},
+        ].map(p=>(
+          <div key={p.label} onClick={()=>setFS(p.label==="Total"?"Todos":p.label)}
+            style={{display:"flex",alignItems:"center",gap:5,padding:"5px 12px",borderRadius:99,background:p.bg,cursor:"pointer"}}>
+            <span style={{fontSize:16,fontWeight:800,color:p.color}}>{p.val}</span>
+            <span style={{fontSize:11.5,fontWeight:600,color:p.color}}>{p.label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Filters */}
+      <div className="filters-bar">
+        <div className="filter-wrap">
+          <span className="filter-icon">🔍</span>
+          <input className="filter-search" placeholder="Buscar nombre, email…" value={search} onChange={e=>setSearch(e.target.value)}/>
+        </div>
+        <select className="filter-select" value={filterCountry} onChange={e=>setFC(e.target.value)}>
+          <option>Todos</option>
+          {["Chile","México","España","Panamá","Venezuela"].map(c=><option key={c}>{c}</option>)}
+        </select>
+        <select className="filter-select" value={filterState} onChange={e=>setFS(e.target.value)}>
+          <option>Todos</option>
+          {["Nuevo","Contactado","En proceso","Cerrado"].map(s=><option key={s}>{s}</option>)}
+        </select>
+        <select className="filter-select" value={filterVendor} onChange={e=>setFV(e.target.value)}>
+          <option>Todos</option>
+          {["Carlos M.","Ana P.","Luis T.","María G."].map(v=><option key={v}>{v}</option>)}
+        </select>
+        <select className="filter-select" value={filterSource} onChange={e=>setFSrc(e.target.value)}>
+          <option>Todos</option>
+          {Object.keys(SOURCES).map(s=><option key={s}>{s}</option>)}
+        </select>
+        <select className="filter-select" value={filterInterest} onChange={e=>setFInt(e.target.value)}>
+          <option>Todos</option>
+          {["Auto","Propiedad","Servicio"].map(i=><option key={i}>{i}</option>)}
+        </select>
+        {(filterCountry!=="Todos"||filterState!=="Todos"||filterVendor!=="Todos"||filterSource!=="Todos"||filterInterest!=="Todos"||search) && (
+          <span className="filter-tag" onClick={()=>{setFC("Todos");setFS("Todos");setFV("Todos");setFSrc("Todos");setFInt("Todos");setSearch("");}}>✕ Limpiar</span>
+        )}
+      </div>
+
+      <div className="card">
+        <div className="table-wrap">
+          <table>
+            <thead><tr>
+              <th onClick={()=>handleSort("name")}>Nombre {sortCol==="name"?(sortDir==="asc"?"↑":"↓"):""}</th>
+              <th>País</th>
+              <th>Fuente</th>
+              <th>Interés</th>
+              <th>Vendedor</th>
+              <th>Estado</th>
+              <th onClick={()=>handleSort("value")}>Valor {sortCol==="value"?(sortDir==="asc"?"↑":"↓"):""}</th>
+              <th>Último contacto</th>
+              <th>Canal</th>
+              <th onClick={()=>handleSort("date")}>Fecha {sortCol==="date"?(sortDir==="asc"?"↑":"↓"):""}</th>
+            </tr></thead>
+            <tbody>
+              {sorted.length===0 ? (
+                <tr><td colSpan={10}>
+                  <div className="empty-state"><div className="empty-icon">◎</div><div className="empty-text">Sin resultados</div></div>
+                </td></tr>
+              ) : sorted.map(l=>{
+                const badge = BADGE_MAP[l.state] || BADGE_MAP["Nuevo"];
+                return (
+                  <tr key={l.id} onClick={()=>setDrawerLead(l)}
+                    style={{cursor:"pointer",background:drawerLead?.id===l.id?"#EEF4FF":""}}>
+                    <td>
+                      <div className="lead-name-cell">
+                        <div className="lead-avatar" style={{background:l.color}}>{l.name.split(" ").map(w=>w[0]).join("").slice(0,2)}</div>
+                        <div>
+                          <div style={{fontWeight:600,fontSize:13}}>{l.name}</div>
+                          <div style={{fontSize:11,color:"#9EA3BD"}}>{l.email}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><div className="country-cell"><span>{l.flag}</span>{l.country}</div></td>
+                    <td><SourceChip source={l.source}/></td>
+                    <td><InterestBadge interest={l.interest}/></td>
+                    <td><div className="vendor-cell"><div className="vendor-dot">{l.vendor.split(" ").map(w=>w[0]).join("")}</div>{l.vendor}</div></td>
+                    <td><span className={`badge ${badge.cls}`}><span className="badge-dot"/>{badge.label}</span></td>
+                    <td style={{fontWeight:700,color:primary}}>{fmtMoney(l.value)}</td>
+                    <td style={{color:"#9EA3BD",fontSize:12}}>{l.lastContact}</td>
+                    <td style={{fontSize:15}}>{CHANNEL_ICONS[l.channel]||"📡"}</td>
+                    <td style={{color:"#9EA3BD",fontSize:12}}>{l.date}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// New lead form with extended fields
+function NewLeadForm({ onSave, onClose, accent }) {
+  const [form, setForm] = React.useState({
+    name:"", email:"", phone:"", country:"Chile",
+    vendor:"Carlos M.", state:"Nuevo", value:"",
+    source:"Web", interest:"Servicio", channel:"Email",
+  });
+  const set = (k,v) => setForm(f=>({...f,[k]:v}));
+  return (
+    <div className="modal-body">
+      <div className="form-row2">
+        <div className="form-group"><label className="form-label">Nombre *</label><input className="form-input" placeholder="Nombre completo" value={form.name} onChange={e=>set("name",e.target.value)}/></div>
+        <div className="form-group"><label className="form-label">Email</label><input className="form-input" type="email" placeholder="email@ejemplo.com" value={form.email} onChange={e=>set("email",e.target.value)}/></div>
+      </div>
+      <div className="form-row2">
+        <div className="form-group"><label className="form-label">Teléfono</label><input className="form-input" placeholder="+56 9 ..." value={form.phone} onChange={e=>set("phone",e.target.value)}/></div>
+        <div className="form-group"><label className="form-label">Valor estimado ($)</label><input className="form-input" type="number" placeholder="5000" value={form.value} onChange={e=>set("value",e.target.value)}/></div>
+      </div>
+      <div className="form-row2">
+        <div className="form-group"><label className="form-label">País</label>
+          <select className="form-select" value={form.country} onChange={e=>set("country",e.target.value)}>
+            {["Chile","México","España","Panamá","Venezuela","Argentina","EEUU"].map(c=><option key={c}>{c}</option>)}
+          </select>
+        </div>
+        <div className="form-group"><label className="form-label">Vendedor</label>
+          <select className="form-select" value={form.vendor} onChange={e=>set("vendor",e.target.value)}>
+            {["Carlos M.","Ana P.","Luis T.","María G."].map(v=><option key={v}>{v}</option>)}
+          </select>
+        </div>
+      </div>
+      <div className="form-row2">
+        <div className="form-group"><label className="form-label">Fuente</label>
+          <select className="form-select" value={form.source} onChange={e=>set("source",e.target.value)}>
+            {Object.keys(SOURCES).map(s=><option key={s}>{s}</option>)}
+          </select>
+        </div>
+        <div className="form-group"><label className="form-label">Interés</label>
+          <select className="form-select" value={form.interest} onChange={e=>set("interest",e.target.value)}>
+            {["Auto","Propiedad","Servicio"].map(i=><option key={i}>{i}</option>)}
+          </select>
+        </div>
+      </div>
+      <div className="form-row2">
+        <div className="form-group"><label className="form-label">Estado</label>
+          <select className="form-select" value={form.state} onChange={e=>set("state",e.target.value)}>
+            {["Nuevo","Contactado","En proceso","Cerrado"].map(s=><option key={s}>{s}</option>)}
+          </select>
+        </div>
+        <div className="form-group"><label className="form-label">Canal seguimiento</label>
+          <select className="form-select" value={form.channel} onChange={e=>set("channel",e.target.value)}>
+            {["Llamada","WhatsApp","Email","Reunión"].map(c=><option key={c}>{c}</option>)}
+          </select>
+        </div>
+      </div>
+      <div className="modal-footer">
+        <button className="btn btn-outline" onClick={onClose}>Cancelar</button>
+        <button className="btn btn-primary" style={{background:accent}} onClick={()=>{if(form.name.trim())onSave(form);}}>Guardar Lead</button>
+      </div>
+    </div>
+  );
+}
+
+
+
+// ── CLIENTES PAGE ─────────────────────────────────────────────────────────
+// ClientesPage component
+const CLIENTES_DATA = [
+  { id:1,  empresa:"TechCorp Chile",      industria:"Tecnología",    country:"Chile",     flag:"🇨🇱", plan:"Pro",       vendor:"Carlos M.", state:"Activo",     fecha:"12 Ene 2026", color:"#6366F1", revenue:4200 },
+  { id:2,  empresa:"Grupo Expansión MX",  industria:"Media",         country:"México",    flag:"🇲🇽", plan:"Enterprise",vendor:"Ana P.",    state:"Activo",     fecha:"03 Feb 2026", color:"#FF6B35", revenue:18700 },
+  { id:3,  empresa:"Iberdrola Digital",   industria:"Energía",       country:"España",    flag:"🇪🇸", plan:"Enterprise",vendor:"Luis T.",   state:"Activo",     fecha:"15 Feb 2026", color:"#8B5CF6", revenue:32500 },
+  { id:4,  empresa:"BanPanamá Tech",      industria:"Finanzas",      country:"Panamá",    flag:"🇵🇦", plan:"Pro",       vendor:"Carlos M.", state:"Activo",     fecha:"20 Mar 2026", color:"#0EA5E9", revenue:15000 },
+  { id:5,  empresa:"Petrovén Digital",    industria:"Energía",       country:"Venezuela", flag:"🇻🇪", plan:"Starter",   vendor:"María G.",  state:"Suspendido", fecha:"08 Ene 2026", color:"#EC4899", revenue:3100 },
+  { id:6,  empresa:"AgroFuturo S.A.",     industria:"Agricultura",   country:"Chile",     flag:"🇨🇱", plan:"Pro",       vendor:"Ana P.",    state:"Activo",     fecha:"01 Abr 2026", color:"#F59E0B", revenue:6800 },
+  { id:7,  empresa:"LogiMex S.A.",        industria:"Logística",     country:"México",    flag:"🇲🇽", plan:"Starter",   vendor:"Luis T.",   state:"Activo",     fecha:"14 Mar 2026", color:"#22C55E", revenue:9200 },
+  { id:8,  empresa:"Retailes España",     industria:"Retail",        country:"España",    flag:"🇪🇸", plan:"Enterprise",vendor:"María G.",  state:"Activo",     fecha:"22 Feb 2026", color:"#14B8A6", revenue:28500 },
+  { id:9,  empresa:"Constructora Pacífico",industria:"Construcción", country:"Panamá",    flag:"🇵🇦", plan:"Pro",       vendor:"Carlos M.", state:"Activo",     fecha:"10 Abr 2026", color:"#F97316", revenue:11200 },
+  { id:10, empresa:"Innovatech CL",       industria:"Tecnología",    country:"Chile",     flag:"🇨🇱", plan:"Pro",       vendor:"Ana P.",    state:"Suspendido", fecha:"05 Mar 2026", color:"#3B82F6", revenue:7600 },
+  { id:11, empresa:"Seguros Caribe",      industria:"Seguros",       country:"Venezuela", flag:"🇻🇪", plan:"Starter",   vendor:"Luis T.",   state:"Activo",     fecha:"18 Abr 2026", color:"#A855F7", revenue:4900 },
+  { id:12, empresa:"Fintech Azteca",      industria:"Finanzas",      country:"México",    flag:"🇲🇽", plan:"Enterprise",vendor:"María G.",  state:"Activo",     fecha:"02 Feb 2026", color:"#EF4444", revenue:42000 },
+];
+
+function ClientesPage({ accent, primary }) {
+  const [search, setSearch]     = React.useState("");
+  const [filterCountry, setFC]  = React.useState("Todos");
+  const [filterIndustry, setFI] = React.useState("Todos");
+  const [filterState, setFS]    = React.useState("Todos");
+  const [selected, setSelected] = React.useState(null);
+  const [showModal, setShowModal] = React.useState(false);
+
+  const industries = [...new Set(CLIENTES_DATA.map(c=>c.industria))].sort();
+
+  const filtered = CLIENTES_DATA.filter(c => {
+    const q = search.toLowerCase();
+    return (!q || c.empresa.toLowerCase().includes(q))
+      && (filterCountry==="Todos" || c.country===filterCountry)
+      && (filterIndustry==="Todos" || c.industria===filterIndustry)
+      && (filterState==="Todos" || c.state===filterState);
+  });
+
+  const activos = CLIENTES_DATA.filter(c=>c.state==="Activo").length;
+  const totalRevenue = CLIENTES_DATA.reduce((a,c)=>a+c.revenue,0);
+
+  const planColor = { "Starter":"#9EA3BD", "Pro":"#0A2463", "Enterprise":"#FF6B35" };
+  const stateClass = { "Activo":"b-cerrado", "Suspendido":"b-contactado" };
+
+  return (
+    <div className="content">
+      {showModal && (
+        <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setShowModal(false)}>
+          <div className="modal">
+            <div className="modal-header">
+              <div className="modal-title">Nuevo Cliente</div>
+              <button className="modal-close" onClick={()=>setShowModal(false)}>✕</button>
+            </div>
+            <div className="modal-body">
+              <div className="form-row2">
+                <div className="form-group"><label className="form-label">Empresa *</label><input className="form-input" placeholder="Nombre de la empresa" /></div>
+                <div className="form-group"><label className="form-label">Industria</label>
+                  <select className="form-select">{industries.map(i=><option key={i}>{i}</option>)}</select>
+                </div>
+              </div>
+              <div className="form-row2">
+                <div className="form-group"><label className="form-label">País</label>
+                  <select className="form-select">{["Chile","México","España","Panamá","Venezuela","Argentina","EEUU"].map(c=><option key={c}>{c}</option>)}</select>
+                </div>
+                <div className="form-group"><label className="form-label">Plan</label>
+                  <select className="form-select"><option>Starter</option><option>Pro</option><option>Enterprise</option></select>
+                </div>
+              </div>
+              <div className="form-row2">
+                <div className="form-group"><label className="form-label">Vendedor</label>
+                  <select className="form-select">{["Carlos M.","Ana P.","Luis T.","María G."].map(v=><option key={v}>{v}</option>)}</select>
+                </div>
+                <div className="form-group"><label className="form-label">Contacto principal</label><input className="form-input" placeholder="nombre@empresa.com" /></div>
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-outline" onClick={()=>setShowModal(false)}>Cancelar</button>
+                <button className="btn btn-primary" style={{background:accent}} onClick={()=>setShowModal(false)}>Guardar Cliente</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="page-header">
+        <div><div className="page-title">Clientes</div><div className="page-sub">{filtered.length} de {CLIENTES_DATA.length} clientes</div></div>
+        <div style={{display:"flex",gap:8}}>
+          <button className="btn btn-outline">📤 Exportar</button>
+          <button className="btn btn-primary" style={{background:accent}} onClick={()=>setShowModal(true)}>+ Nuevo Cliente</button>
+        </div>
+      </div>
+
+      {/* Summary */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:14,marginBottom:20}}>
+        {[
+          {label:"Total Clientes",   val:CLIENTES_DATA.length, color:primary,   icon:"♟"},
+          {label:"Clientes Activos", val:activos,              color:"#22C55E", icon:"✔"},
+          {label:"Suspendidos",      val:CLIENTES_DATA.length-activos, color:"#FF6B35", icon:"⏸"},
+          {label:"Ingresos MRR",     val:`$${(totalRevenue/1000).toFixed(0)}k`, color:"#6366F1", icon:"$"},
+        ].map(s=>(
+          <div className="kpi-card" key={s.label}>
+            <div className="kpi-accent" style={{background:s.color}}/>
+            <div className="kpi-top">
+              <div className="kpi-icon" style={{background:`${s.color}18`}}><span style={{fontSize:17}}>{s.icon}</span></div>
+            </div>
+            <div>
+              <div className="kpi-value">{typeof s.val==="number"?<AnimNum val={s.val}/>:s.val}</div>
+              <div className="kpi-label">{s.label}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Filters */}
+      <div className="filters-bar">
+        <div className="filter-wrap">
+          <span className="filter-icon">🔍</span>
+          <input className="filter-search" placeholder="Buscar empresa…" value={search} onChange={e=>setSearch(e.target.value)}/>
+        </div>
+        <select className="filter-select" value={filterCountry} onChange={e=>setFC(e.target.value)}>
+          <option>Todos</option>
+          {["Chile","México","España","Panamá","Venezuela"].map(c=><option key={c}>{c}</option>)}
+        </select>
+        <select className="filter-select" value={filterIndustry} onChange={e=>setFI(e.target.value)}>
+          <option>Todos</option>
+          {industries.map(i=><option key={i}>{i}</option>)}
+        </select>
+        <select className="filter-select" value={filterState} onChange={e=>setFS(e.target.value)}>
+          <option>Todos</option><option>Activo</option><option>Suspendido</option>
+        </select>
+        {(filterCountry!=="Todos"||filterIndustry!=="Todos"||filterState!=="Todos"||search) && (
+          <span className="filter-tag" onClick={()=>{setFC("Todos");setFI("Todos");setFS("Todos");setSearch("");}}>✕ Limpiar</span>
+        )}
+      </div>
+
+      <div className="card">
+        <div className="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Empresa</th><th>Industria</th><th>País</th><th>Plan</th><th>Vendedor</th><th>Estado</th><th>Ingresos</th><th>Fecha Inicio</th>
+            </tr></thead>
+            <tbody>
+              {filtered.map(c=>(
+                <tr key={c.id} className={selected===c.id?"selected":""} onClick={()=>setSelected(s=>s===c.id?null:c.id)}>
+                  <td>
+                    <div style={{display:"flex",alignItems:"center",gap:9}}>
+                      <div style={{width:30,height:30,borderRadius:8,background:c.color,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,color:"#fff",flexShrink:0}}>
+                        {c.empresa.slice(0,2).toUpperCase()}
+                      </div>
+                      <span style={{fontWeight:600}}>{c.empresa}</span>
+                    </div>
+                  </td>
+                  <td style={{color:"#6B7099",fontSize:12.5}}>{c.industria}</td>
+                  <td><div className="country-cell"><span>{c.flag}</span>{c.country}</div></td>
+                  <td>
+                    <span style={{display:"inline-flex",alignItems:"center",gap:4,padding:"3px 10px",borderRadius:99,fontSize:11,fontWeight:700,background:`${planColor[c.plan]}18`,color:planColor[c.plan]}}>
+                      {c.plan}
+                    </span>
+                  </td>
+                  <td><div className="vendor-cell"><div className="vendor-dot">{c.vendor.split(" ").map(w=>w[0]).join("")}</div>{c.vendor}</div></td>
+                  <td><span className={`badge ${stateClass[c.state]}`}><span className="badge-dot"/>{c.state}</span></td>
+                  <td style={{fontWeight:700,color:primary}}>${(c.revenue/1000).toFixed(1)}k</td>
+                  <td style={{color:"#9EA3BD",fontSize:12}}>{c.fecha}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+// ── PAISES PAGE ───────────────────────────────────────────────────────────
+// PaisesPage component
+const PAISES_DATA = [
+  { name:"Chile",     flag:"🇨🇱", code:"CL", vendedores:4, leads:148, clientes:42, ingresos:284500, color:"#0A2463", growth:12.5 },
+  { name:"México",    flag:"🇲🇽", code:"MX", vendedores:3, leads:124, clientes:31, ingresos:198700, color:"#FF6B35", growth:8.3  },
+  { name:"España",    flag:"🇪🇸", code:"ES", vendedores:3, leads:97,  clientes:27, ingresos:167200, color:"#6366F1", growth:6.7  },
+  { name:"Panamá",    flag:"🇵🇦", code:"PA", vendedores:2, leads:73,  clientes:24, ingresos:143900, color:"#22C55E", growth:4.1  },
+  { name:"Venezuela", flag:"🇻🇪", code:"VE", vendedores:2, leads:42,  clientes:14, ingresos:89400,  color:"#F59E0B", growth:-2.1 },
+  { name:"Argentina", flag:"🇦🇷", code:"AR", vendedores:1, leads:28,  clientes:8,  ingresos:52000,  color:"#EC4899", growth:15.4 },
+  { name:"EEUU",      flag:"🇺🇸", code:"US", vendedores:1, leads:19,  clientes:5,  ingresos:38700,  color:"#14B8A6", growth:22.1 },
+];
+
+function PaisesPage({ accent, primary }) {
+  const [selected, setSelected] = React.useState(null);
+  const [barWidths, setBarWidths] = React.useState({});
+
+  const maxLeads = Math.max(...PAISES_DATA.map(p=>p.leads));
+
+  React.useEffect(()=>{
+    const t = setTimeout(()=>{
+      const w = {};
+      PAISES_DATA.forEach(p=>{ w[p.code] = Math.round((p.leads/maxLeads)*100); });
+      setBarWidths(w);
+    }, 300);
+    return ()=>clearTimeout(t);
+  }, []);
+
+  const fmtM = n => n>=1000000 ? `$${(n/1000000).toFixed(1)}M` : `$${(n/1000).toFixed(0)}k`;
+  const totalLeads    = PAISES_DATA.reduce((a,p)=>a+p.leads,0);
+  const totalClientes = PAISES_DATA.reduce((a,p)=>a+p.clientes,0);
+  const totalIngresos = PAISES_DATA.reduce((a,p)=>a+p.ingresos,0);
+
+  return (
+    <div className="content">
+      <div className="page-header">
+        <div><div className="page-title">Países</div><div className="page-sub">Cobertura internacional · {PAISES_DATA.length} países activos</div></div>
+        <button className="btn btn-primary" style={{background:accent}}>+ Agregar País</button>
+      </div>
+
+      {/* Global KPIs */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:14,marginBottom:22}}>
+        {[
+          {label:"Países Activos",  val:PAISES_DATA.length, color:primary,   icon:"◉"},
+          {label:"Total Leads",     val:totalLeads,         color:accent,    icon:"◎"},
+          {label:"Total Clientes",  val:totalClientes,      color:"#22C55E", icon:"♟"},
+          {label:"Ingresos Globales",val:fmtM(totalIngresos),color:"#6366F1",icon:"$"},
+        ].map(s=>(
+          <div className="kpi-card" key={s.label}>
+            <div className="kpi-accent" style={{background:s.color}}/>
+            <div className="kpi-top">
+              <div className="kpi-icon" style={{background:`${s.color}18`}}><span style={{fontSize:17}}>{s.icon}</span></div>
+            </div>
+            <div>
+              <div className="kpi-value">{typeof s.val==="number"?<AnimNum val={s.val}/>:s.val}</div>
+              <div className="kpi-label">{s.label}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Country cards grid */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(290px,1fr))",gap:16}}>
+        {PAISES_DATA.map(p=>(
+          <div key={p.code}
+            className="seller-card"
+            style={{cursor:"pointer",outline: selected===p.code?`2px solid ${p.color}`:"none"}}
+            onClick={()=>setSelected(s=>s===p.code?null:p.code)}>
+            <div className="seller-card-accent" style={{background:p.color}}/>
+
+            {/* Header */}
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16}}>
+              <div style={{display:"flex",alignItems:"center",gap:12}}>
+                <div style={{fontSize:36,lineHeight:1}}>{p.flag}</div>
+                <div>
+                  <div style={{fontSize:16,fontWeight:800,color:"#1A1D2E"}}>{p.name}</div>
+                  <div style={{fontSize:11,color:"#9EA3BD",fontWeight:500,marginTop:1}}>{p.vendedores} vendedor{p.vendedores!==1?"es":""}</div>
+                </div>
+              </div>
+              <div style={{display:"flex",alignItems:"center",gap:3,fontSize:12,fontWeight:700,
+                padding:"3px 9px",borderRadius:99,
+                background:p.growth>=0?"#E8FAF0":"#FFF0EC",
+                color:p.growth>=0?"#22C55E":"#FF6B35"}}>
+                {p.growth>=0?"↑":"↓"} {Math.abs(p.growth)}%
+              </div>
+            </div>
+
+            {/* Metrics */}
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:14}}>
+              {[
+                {label:"LEADS",    val:p.leads,              color:p.color},
+                {label:"CLIENTES", val:p.clientes,           color:"#22C55E"},
+                {label:"INGRESOS", val:fmtM(p.ingresos),     color:"#6366F1"},
+              ].map(m=>(
+                <div key={m.label} style={{background:"#F9FAFD",borderRadius:10,padding:"10px 8px",textAlign:"center"}}>
+                  <div style={{fontSize:m.label==="INGRESOS"?14:18,fontWeight:800,color:m.color,lineHeight:1}}>{m.label==="INGRESOS"?m.val:<AnimNum val={m.val}/>}</div>
+                  <div style={{fontSize:10,color:"#9EA3BD",fontWeight:600,marginTop:3,letterSpacing:"0.02em"}}>{m.label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Lead bar */}
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",fontSize:11,color:"#9EA3BD",fontWeight:500,marginBottom:5}}>
+              <span>Participación de leads</span>
+              <span style={{fontWeight:700,color:p.color}}>{Math.round((p.leads/totalLeads)*100)}%</span>
+            </div>
+            <div className="bar-track">
+              <div className="bar-fill" style={{width:`${barWidths[p.code]||0}%`,background:p.color}}/>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+
+// ── REPORTES PAGE ─────────────────────────────────────────────────────────
+// ReportesPage - SVG charts, no external lib
+const MONTHS = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+
+const LEADS_POR_MES = [28,42,35,58,47,65,72,61,80,74,92,88];
+const INGRESOS_ACUM = [18,38,62,95,128,172,221,268,334,398,476,564];
+
+const CONVERSION_PAIS = [
+  {name:"Chile",    flag:"🇨🇱", pct:74, color:"#0A2463"},
+  {name:"México",   flag:"🇲🇽", pct:61, color:"#FF6B35"},
+  {name:"España",   flag:"🇪🇸", pct:55, color:"#6366F1"},
+  {name:"Panamá",   flag:"🇵🇦", pct:48, color:"#22C55E"},
+  {name:"Venezuela",flag:"🇻🇪", pct:32, color:"#F59E0B"},
+  {name:"Argentina",flag:"🇦🇷", pct:29, color:"#EC4899"},
+  {name:"EEUU",     flag:"🇺🇸", pct:21, color:"#14B8A6"},
+];
+
+const TOP_VENDEDORES = [
+  {name:"Carlos M.",color:"#0A2463", closed:42, revenue:284500},
+  {name:"Ana P.",   color:"#FF6B35", closed:31, revenue:198700},
+  {name:"Luis T.",  color:"#6366F1", closed:27, revenue:167200},
+  {name:"María G.", color:"#22C55E", closed:24, revenue:143900},
+  {name:"Jorge R.", color:"#F59E0B", closed:14, revenue:89400},
+];
+
+// Simple SVG line chart
+function LineChart({ data, color, label, width=480, height=160 }) {
+  const pad = {t:16,r:16,b:32,l:44};
+  const w = width - pad.l - pad.r;
+  const h = height - pad.t - pad.b;
+  const max = Math.max(...data)*1.1;
+  const min = 0;
+  const pts = data.map((v,i)=>({
+    x: pad.l + (i/(data.length-1))*w,
+    y: pad.t + h - ((v-min)/(max-min))*h,
+  }));
+  const linePath = pts.map((p,i)=>`${i===0?"M":"L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+  const areaPath = linePath + ` L${pts[pts.length-1].x},${pad.t+h} L${pts[0].x},${pad.t+h} Z`;
+
+  // Y axis labels
+  const yTicks = 4;
+  const yLabels = Array.from({length:yTicks+1},(_,i)=>Math.round(min+(max-min)*(i/yTicks)));
+
+  return (
+    <svg viewBox={`0 0 ${width} ${height}`} style={{width:"100%",height:"100%"}}>
+      <defs>
+        <linearGradient id={`grad-${label}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.18"/>
+          <stop offset="100%" stopColor={color} stopOpacity="0"/>
+        </linearGradient>
+      </defs>
+      {/* Grid */}
+      {yLabels.map((v,i)=>{
+        const y = pad.t + h - ((v-min)/(max-min))*h;
+        return <g key={i}>
+          <line x1={pad.l} y1={y} x2={pad.l+w} y2={y} stroke="#F0F2FA" strokeWidth="1"/>
+          <text x={pad.l-6} y={y+4} textAnchor="end" fontSize="9" fill="#9EA3BD">{v}</text>
+        </g>;
+      })}
+      {/* Area */}
+      <path d={areaPath} fill={`url(#grad-${label})`}/>
+      {/* Line */}
+      <path d={linePath} fill="none" stroke={color} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round"/>
+      {/* Dots */}
+      {pts.map((p,i)=>(
+        <circle key={i} cx={p.x} cy={p.y} r="3.5" fill="#fff" stroke={color} strokeWidth="2"/>
+      ))}
+      {/* X labels */}
+      {MONTHS.map((m,i)=>{
+        const x = pad.l + (i/(data.length-1))*w;
+        return <text key={m} x={x} y={height-6} textAnchor="middle" fontSize="9" fill="#9EA3BD">{m}</text>;
+      })}
+    </svg>
+  );
+}
+
+// SVG bar chart
+function BarChart({ data, width=380, height=200 }) {
+  const pad = {t:12,r:12,b:12,l:80};
+  const w = width - pad.l - pad.r;
+  const h = height - pad.t - pad.b;
+  const barH = Math.floor(h/data.length) - 6;
+  return (
+    <svg viewBox={`0 0 ${width} ${height}`} style={{width:"100%",height:"100%"}}>
+      {data.map((d,i)=>{
+        const y = pad.t + i*(h/data.length) + (h/data.length - barH)/2;
+        const bw = (d.pct/100)*w;
+        return (
+          <g key={d.name}>
+            <text x={pad.l-8} y={y+barH/2+4} textAnchor="end" fontSize="11" fontWeight="600" fill="#1A1D2E">{d.flag} {d.name}</text>
+            <rect x={pad.l} y={y} width={bw} height={barH} rx="5" fill={d.color} opacity="0.9"/>
+            <rect x={pad.l} y={y} width={w} height={barH} rx="5" fill={d.color} opacity="0.08"/>
+            <text x={pad.l+bw+6} y={y+barH/2+4} fontSize="11" fontWeight="700" fill={d.color}>{d.pct}%</text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function ReportesPage({ accent, primary }) {
+  const [period, setPeriod]  = React.useState("2026");
+  const [country, setCountry] = React.useState("Todos");
+  const maxClosed = Math.max(...TOP_VENDEDORES.map(v=>v.closed));
+  const [barW, setBarW] = React.useState({});
+  React.useEffect(()=>{
+    const t=setTimeout(()=>{
+      const w={};
+      TOP_VENDEDORES.forEach(v=>{ w[v.name]=Math.round((v.closed/maxClosed)*100); });
+      setBarW(w);
+    },300);
+    return()=>clearTimeout(t);
+  },[]);
+
+  return (
+    <div className="content">
+      <div className="page-header">
+        <div><div className="page-title">Reportes</div><div className="page-sub">Análisis de performance · {period}</div></div>
+        <div style={{display:"flex",gap:8}}>
+          <select className="filter-select" value={period} onChange={e=>setPeriod(e.target.value)}>
+            <option>2026</option><option>2025</option><option>Q1 2026</option><option>Q2 2026</option>
+          </select>
+          <select className="filter-select" value={country} onChange={e=>setCountry(e.target.value)}>
+            <option>Todos</option>
+            {["Chile","México","España","Panamá","Venezuela","Argentina","EEUU"].map(c=><option key={c}>{c}</option>)}
+          </select>
+          <button className="btn btn-primary" style={{background:accent}} onClick={()=>window.print()}>📥 Exportar PDF</button>
+        </div>
+      </div>
+
+      {/* KPIs */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:14,marginBottom:22}}>
+        {[
+          {label:"Total Leads",       val:484,    color:primary,   trend:"↑ 12.5%", up:true},
+          {label:"Tasa Conversión",   val:"20%",  color:"#22C55E", trend:"↑ 3.2%",  up:true},
+          {label:"Ingresos Anuales",  val:"$956k",color:"#6366F1", trend:"↑ 18.7%", up:true},
+          {label:"Ticket Promedio",   val:"$9.8k",color:accent,    trend:"↓ 1.4%",  up:false},
+        ].map(s=>(
+          <div className="kpi-card" key={s.label}>
+            <div className="kpi-accent" style={{background:s.color}}/>
+            <div className="kpi-top">
+              <div className="kpi-icon" style={{background:`${s.color}18`}}><span style={{fontSize:17}}>📊</span></div>
+              <div className={`kpi-trend ${s.up?"trend-up":"trend-dn"}`}>{s.trend}</div>
+            </div>
+            <div>
+              <div className="kpi-value">{typeof s.val==="number"?<AnimNum val={s.val}/>:s.val}</div>
+              <div className="kpi-label">{s.label}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Charts row 1 */}
+      <div style={{display:"grid",gridTemplateColumns:"1.4fr 1fr",gap:18,marginBottom:18}}>
+
+        {/* Line chart: leads por mes */}
+        <div className="card">
+          <div className="card-header">
+            <div><div className="card-title">Leads por Mes</div><div className="card-sub">Evolución anual {period}</div></div>
+          </div>
+          <div style={{padding:"12px 18px 16px",height:200}}>
+            <LineChart data={LEADS_POR_MES} color={primary} label="leads"/>
+          </div>
+        </div>
+
+        {/* Bar chart: conversion por país */}
+        <div className="card">
+          <div className="card-header">
+            <div><div className="card-title">Conversión por País</div><div className="card-sub">% leads cerrados</div></div>
+          </div>
+          <div style={{padding:"12px 18px 16px",height:200}}>
+            <BarChart data={CONVERSION_PAIS}/>
+          </div>
+        </div>
+      </div>
+
+      {/* Charts row 2 */}
+      <div style={{display:"grid",gridTemplateColumns:"1.4fr 1fr",gap:18}}>
+
+        {/* Area: ingresos acumulados */}
+        <div className="card">
+          <div className="card-header">
+            <div><div className="card-title">Ingresos Acumulados</div><div className="card-sub">En miles USD · {period}</div></div>
+          </div>
+          <div style={{padding:"12px 18px 16px",height:200}}>
+            <LineChart data={INGRESOS_ACUM} color="#6366F1" label="ingresos"/>
+          </div>
+        </div>
+
+        {/* Top 5 vendedores */}
+        <div className="card">
+          <div className="card-header">
+            <div><div className="card-title">Top 5 Vendedores</div><div className="card-sub">Por leads cerrados</div></div>
+          </div>
+          <div style={{padding:"12px 18px 18px",display:"flex",flexDirection:"column",gap:12}}>
+            {TOP_VENDEDORES.map((v,i)=>(
+              <div key={v.name} style={{display:"flex",flexDirection:"column",gap:4}}>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8}}>
+                    <div style={{width:20,height:20,borderRadius:5,background:v.color,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:700,color:"#fff"}}>{i+1}</div>
+                    <span style={{fontSize:13,fontWeight:600,color:"#1A1D2E"}}>{v.name}</span>
+                  </div>
+                  <div style={{display:"flex",alignItems:"center",gap:10}}>
+                    <span style={{fontSize:12,fontWeight:700,color:v.color}}>{v.closed} cerrados</span>
+                    <span style={{fontSize:11,color:"#9EA3BD"}}>${(v.revenue/1000).toFixed(0)}k</span>
+                  </div>
+                </div>
+                <div className="bar-track">
+                  <div className="bar-fill" style={{width:`${barW[v.name]||0}%`,background:v.color}}/>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+// ── CONFIGURACION PAGE ────────────────────────────────────────────────────
+// ConfiguracionPage component
+const USERS_DATA = [
+  { id:1, name:"Carlos Martínez", email:"carlos@leadpro.com", role:"Admin",    countries:["Chile","Panamá"],     active:true,  color:"#0A2463" },
+  { id:2, name:"Ana Pérez",       email:"ana@leadpro.com",    role:"Manager",  countries:["Chile","México"],     active:true,  color:"#FF6B35" },
+  { id:3, name:"Luis Torres",     email:"luis@leadpro.com",   role:"Vendedor", countries:["España","Venezuela"], active:true,  color:"#6366F1" },
+  { id:4, name:"María García",    email:"maria@leadpro.com",  role:"Vendedor", countries:["España","México"],    active:true,  color:"#22C55E" },
+  { id:5, name:"Jorge Reyes",     email:"jorge@leadpro.com",  role:"Vendedor", countries:["Venezuela","Panamá"], active:false, color:"#F59E0B" },
+  { id:6, name:"Daniela Fuentes", email:"daniela@leadpro.com",role:"Vendedor", countries:["Chile","España"],     active:true,  color:"#EC4899" },
+];
+
+const PLANES = [
+  { name:"Starter",    price:49,  users:3,  leads:500,   color:"#9EA3BD", current:false },
+  { name:"Pro",        price:129, users:10, leads:5000,  color:"#0A2463", current:true  },
+  { name:"Enterprise", price:349, users:999,leads:99999, color:"#FF6B35", current:false },
+];
+
+const INTEGRACIONES = [
+  { name:"WhatsApp Business", icon:"💬", desc:"Envía y recibe mensajes de leads directamente", connected:true,  color:"#22C55E" },
+  { name:"Facebook Ads",      icon:"📘", desc:"Sincroniza leads desde tus campañas de Facebook", connected:false, color:"#3B82F6" },
+  { name:"LinkedIn Sales Nav",icon:"💼", desc:"Importa prospectos de LinkedIn automáticamente",  connected:false, color:"#0EA5E9" },
+  { name:"Gmail / Google",    icon:"📧", desc:"Sincroniza emails y calendario con tus leads",    connected:true,  color:"#EF4444" },
+  { name:"Slack",             icon:"⚡", desc:"Recibe notificaciones de leads en Slack",         connected:false, color:"#F59E0B" },
+  { name:"Zapier",            icon:"🔗", desc:"Automatiza flujos con más de 5,000 apps",         connected:false, color:"#FF6B35" },
+];
+
+function Toggle({ on, onChange }) {
+  return (
+    <div onClick={()=>onChange(!on)} style={{
+      width:42, height:24, borderRadius:99, background: on?"#FF6B35":"#E8EAF2",
+      position:"relative", cursor:"pointer", transition:"background 0.2s", flexShrink:0,
+    }}>
+      <div style={{
+        position:"absolute", top:3, left: on?19:3, width:18, height:18,
+        background:"#fff", borderRadius:"50%", transition:"left 0.2s",
+        boxShadow:"0 1px 4px rgba(0,0,0,0.15)",
+      }}/>
+    </div>
+  );
+}
+
+function ConfiguracionPage({ accent, primary }) {
+  const [activeTab, setActiveTab] = React.useState("usuarios");
+  const [users, setUsers] = React.useState(USERS_DATA);
+  const [integrations, setIntegrations] = React.useState(INTEGRACIONES);
+  const [twoFA, setTwoFA] = React.useState(false);
+  const [notifications, setNotifications] = React.useState(true);
+  const [showPwModal, setShowPwModal] = React.useState(false);
+  const [showUserModal, setShowUserModal] = React.useState(false);
+
+  const tabs = [
+    { id:"usuarios",      icon:"👥", label:"Usuarios" },
+    { id:"planes",        icon:"💳", label:"Planes" },
+    { id:"integraciones", icon:"🔗", label:"Integraciones" },
+    { id:"seguridad",     icon:"🔒", label:"Seguridad" },
+  ];
+
+  const toggleUser = id => setUsers(prev=>prev.map(u=>u.id===id?{...u,active:!u.active}:u));
+  const toggleIntegration = name => setIntegrations(prev=>prev.map(i=>i.name===name?{...i,connected:!i.connected}:i));
+
+  const roleColor = { Admin:"#0A2463", Manager:"#FF6B35", Vendedor:"#6366F1" };
+
+  return (
+    <div className="content">
+      {showPwModal && (
+        <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setShowPwModal(false)}>
+          <div className="modal" style={{maxWidth:420}}>
+            <div className="modal-header">
+              <div className="modal-title">Cambiar Contraseña</div>
+              <button className="modal-close" onClick={()=>setShowPwModal(false)}>✕</button>
+            </div>
+            <div className="modal-body">
+              {["Contraseña actual","Nueva contraseña","Confirmar contraseña"].map(l=>(
+                <div className="form-group" key={l}><label className="form-label">{l}</label><input className="form-input" type="password" placeholder="••••••••"/></div>
+              ))}
+              <div className="modal-footer">
+                <button className="btn btn-outline" onClick={()=>setShowPwModal(false)}>Cancelar</button>
+                <button className="btn btn-primary" style={{background:accent}} onClick={()=>setShowPwModal(false)}>Guardar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showUserModal && (
+        <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setShowUserModal(false)}>
+          <div className="modal">
+            <div className="modal-header">
+              <div className="modal-title">Agregar Usuario</div>
+              <button className="modal-close" onClick={()=>setShowUserModal(false)}>✕</button>
+            </div>
+            <div className="modal-body">
+              <div className="form-row2">
+                <div className="form-group"><label className="form-label">Nombre completo</label><input className="form-input" placeholder="Nombre Apellido"/></div>
+                <div className="form-group"><label className="form-label">Email</label><input className="form-input" type="email" placeholder="usuario@empresa.com"/></div>
+              </div>
+              <div className="form-row2">
+                <div className="form-group"><label className="form-label">Rol</label>
+                  <select className="form-select"><option>Vendedor</option><option>Manager</option><option>Admin</option></select>
+                </div>
+                <div className="form-group"><label className="form-label">País asignado</label>
+                  <select className="form-select">{["Chile","México","España","Panamá","Venezuela","Argentina","EEUU"].map(c=><option key={c}>{c}</option>)}</select>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-outline" onClick={()=>setShowUserModal(false)}>Cancelar</button>
+                <button className="btn btn-primary" style={{background:accent}} onClick={()=>setShowUserModal(false)}>Crear Usuario</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="page-header">
+        <div><div className="page-title">Configuración</div><div className="page-sub">Administración del sistema</div></div>
+      </div>
+
+      {/* Tabs */}
+      <div style={{display:"flex",gap:4,marginBottom:22,borderBottom:"1.5px solid #E8EAF2",paddingBottom:0}}>
+        {tabs.map(t=>(
+          <div key={t.id} onClick={()=>setActiveTab(t.id)}
+            style={{
+              display:"flex",alignItems:"center",gap:7,padding:"10px 18px",
+              cursor:"pointer",fontWeight:600,fontSize:13.5,borderRadius:"10px 10px 0 0",
+              background: activeTab===t.id?"#fff":"transparent",
+              color: activeTab===t.id?primary:"#9EA3BD",
+              borderBottom: activeTab===t.id?`2px solid ${primary}`:"2px solid transparent",
+              marginBottom:-1.5, transition:"all 0.15s",
+            }}>
+            <span>{t.icon}</span>{t.label}
+          </div>
+        ))}
+      </div>
+
+      {/* Tab: Usuarios */}
+      {activeTab==="usuarios" && (
+        <div>
+          <div style={{display:"flex",justifyContent:"flex-end",marginBottom:14}}>
+            <button className="btn btn-primary" style={{background:accent}} onClick={()=>setShowUserModal(true)}>+ Agregar Usuario</button>
+          </div>
+          <div className="card">
+            <div className="table-wrap">
+              <table>
+                <thead><tr>
+                  <th>Usuario</th><th>Rol</th><th>Países</th><th>Estado</th><th>Acciones</th>
+                </tr></thead>
+                <tbody>
+                  {users.map(u=>(
+                    <tr key={u.id}>
+                      <td>
+                        <div style={{display:"flex",alignItems:"center",gap:9}}>
+                          <div style={{width:32,height:32,borderRadius:9,background:u.color,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,color:"#fff"}}>
+                            {u.name.split(" ").map(w=>w[0]).join("").slice(0,2)}
+                          </div>
+                          <div>
+                            <div style={{fontWeight:700,fontSize:13,color:"#1A1D2E"}}>{u.name}</div>
+                            <div style={{fontSize:11,color:"#9EA3BD"}}>{u.email}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span style={{padding:"3px 10px",borderRadius:99,fontSize:11,fontWeight:700,background:`${roleColor[u.role]||"#9EA3BD"}18`,color:roleColor[u.role]||"#9EA3BD"}}>
+                          {u.role}
+                        </span>
+                      </td>
+                      <td>
+                        <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+                          {u.countries.map(c=>{
+                            const flags={Chile:"🇨🇱",México:"🇲🇽",España:"🇪🇸",Panamá:"🇵🇦",Venezuela:"🇻🇪",Argentina:"🇦🇷",EEUU:"🇺🇸"};
+                            return <span key={c} style={{display:"flex",alignItems:"center",gap:3,padding:"2px 7px",background:"#F5F6FA",borderRadius:99,fontSize:11,fontWeight:500,color:"#6B7099"}}>{flags[c]||"🌍"} {c}</span>;
+                          })}
+                        </div>
+                      </td>
+                      <td><Toggle on={u.active} onChange={()=>toggleUser(u.id)}/></td>
+                      <td>
+                        <div style={{display:"flex",gap:6}}>
+                          <button className="btn btn-outline" style={{height:30,padding:"0 10px",fontSize:12}}>✏ Editar</button>
+                          <button className="btn btn-outline" style={{height:30,padding:"0 10px",fontSize:12,color:"#EF4444",borderColor:"#FCA5A5"}}>🗑</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tab: Planes */}
+      {activeTab==="planes" && (
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:18,maxWidth:900}}>
+          {PLANES.map(p=>(
+            <div key={p.name} style={{
+              background:"#fff",borderRadius:16,padding:"28px 24px",
+              border: p.current?`2px solid ${primary}`:"1.5px solid #E8EAF2",
+              position:"relative",boxShadow: p.current?"0 8px 28px rgba(10,36,99,0.1)":"0 1px 4px rgba(10,36,99,0.04)",
+            }}>
+              {p.current && <div style={{position:"absolute",top:-12,left:"50%",transform:"translateX(-50%)",background:primary,color:"#fff",fontSize:10,fontWeight:700,padding:"3px 12px",borderRadius:99,letterSpacing:"0.05em",whiteSpace:"nowrap"}}>PLAN ACTUAL</div>}
+              <div style={{fontSize:18,fontWeight:800,color:"#1A1D2E",marginBottom:6}}>{p.name}</div>
+              <div style={{fontSize:32,fontWeight:900,color:p.color,marginBottom:16}}>${p.price}<span style={{fontSize:14,fontWeight:500,color:"#9EA3BD"}}>/mes</span></div>
+              {[
+                `${p.users===999?"Ilimitados":p.users} usuarios`,
+                `${p.leads===99999?"Ilimitados":p.leads.toLocaleString()} leads`,
+                "Soporte prioritario",
+                p.name!=="Starter"?"Reportes avanzados":"Reportes básicos",
+                p.name==="Enterprise"?"API personalizada":"—",
+              ].map((f,i)=>(
+                <div key={i} style={{display:"flex",alignItems:"center",gap:8,marginBottom:8,fontSize:13,color:f==="—"?"#C0C4D8":"#1A1D2E"}}>
+                  <span style={{color:f==="—"?"#C0C4D8":"#22C55E",fontSize:14}}>{f==="—"?"✕":"✔"}</span>{f}
+                </div>
+              ))}
+              <button className="btn" style={{
+                marginTop:16,width:"100%",background:p.current?primary:accent,
+                color:"#fff",justifyContent:"center",
+              }}>{p.current?"Plan Activo":"Cambiar Plan"}</button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Tab: Integraciones */}
+      {activeTab==="integraciones" && (
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:14}}>
+          {integrations.map(int=>(
+            <div key={int.name} className="card" style={{padding:"20px 18px"}}>
+              <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:12}}>
+                <div style={{display:"flex",alignItems:"center",gap:12}}>
+                  <div style={{width:40,height:40,borderRadius:10,background:`${int.color}18`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20}}>{int.icon}</div>
+                  <div>
+                    <div style={{fontWeight:700,fontSize:13.5,color:"#1A1D2E"}}>{int.name}</div>
+                    <div style={{fontSize:11,color:int.connected?"#22C55E":"#9EA3BD",fontWeight:600,marginTop:2}}>{int.connected?"● Conectado":"○ Desconectado"}</div>
+                  </div>
+                </div>
+                <Toggle on={int.connected} onChange={()=>toggleIntegration(int.name)}/>
+              </div>
+              <div style={{fontSize:12,color:"#9EA3BD",lineHeight:1.5}}>{int.desc}</div>
+              {int.connected && <button className="btn btn-outline" style={{marginTop:12,height:30,fontSize:12,padding:"0 12px"}}>⚙ Configurar</button>}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Tab: Seguridad */}
+      {activeTab==="seguridad" && (
+        <div style={{display:"flex",flexDirection:"column",gap:14,maxWidth:600}}>
+          {[
+            {
+              title:"Contraseña",
+              sub:"Última actualización hace 30 días",
+              icon:"🔑",
+              action:<button className="btn btn-outline" onClick={()=>setShowPwModal(true)}>Cambiar contraseña</button>
+            },
+            {
+              title:"Autenticación de dos factores (2FA)",
+              sub:"Añade una capa extra de seguridad a tu cuenta",
+              icon:"🛡",
+              action:<Toggle on={twoFA} onChange={setTwoFA}/>
+            },
+            {
+              title:"Notificaciones de seguridad",
+              sub:"Recibe alertas sobre accesos sospechosos",
+              icon:"🔔",
+              action:<Toggle on={notifications} onChange={setNotifications}/>
+            },
+            {
+              title:"Sesiones activas",
+              sub:"3 dispositivos conectados actualmente",
+              icon:"💻",
+              action:<button className="btn btn-outline" style={{color:"#EF4444",borderColor:"#FCA5A5"}}>Cerrar todas</button>
+            },
+          ].map(item=>(
+            <div key={item.title} className="card" style={{padding:"18px 20px"}}>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:16}}>
+                <div style={{display:"flex",alignItems:"center",gap:14}}>
+                  <div style={{width:40,height:40,borderRadius:10,background:"#F5F6FA",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>{item.icon}</div>
+                  <div>
+                    <div style={{fontWeight:700,fontSize:14,color:"#1A1D2E"}}>{item.title}</div>
+                    <div style={{fontSize:12,color:"#9EA3BD",marginTop:2}}>{item.sub}</div>
+                  </div>
+                </div>
+                {item.action}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+// ── MAIN APP ──────────────────────────────────────────────────────────────
+
+
+// ── TWEAK DEFAULTS ─────────────────────────────────────────────────────────
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accentColor": "#FF6B35",
+  "primaryColor": "#0A2463",
+  "showSparklines": true,
+  "tableRows": 8
+}/*EDITMODE-END*/;
+
+// ── DATA ───────────────────────────────────────────────────────────────────
+
+const SELLERS = [
+  { id:1, name:"Carlos Martínez", role:"Senior Sales",    countries:["Chile","Panamá"],    color:"#0A2463", leads:127, closed:42, revenue:284500, pct:88 },
+  { id:2, name:"Ana Pérez",       role:"Sales Manager",   countries:["Chile","México"],    color:"#FF6B35", leads:98,  closed:31, revenue:198700, pct:74 },
+  { id:3, name:"Luis Torres",     role:"Account Exec",    countries:["España","Venezuela"],color:"#6366F1", leads:84,  closed:27, revenue:167200, pct:67 },
+  { id:4, name:"María García",    role:"Sales Executive", countries:["España","México"],   color:"#22C55E", leads:72,  closed:24, revenue:143900, pct:61 },
+  { id:5, name:"Jorge Reyes",     role:"Junior Sales",    countries:["Venezuela","Panamá"],color:"#F59E0B", leads:56,  closed:14, revenue:89400,  pct:43 },
+  { id:6, name:"Daniela Fuentes", role:"Sales Rep",       countries:["Chile","España"],    color:"#EC4899", leads:47,  closed:11, revenue:72600,  pct:36 },
+];
+
+const COUNTRIES_DATA = [
+  { name:"Chile",     flag:"🇨🇱", count:148, pct:82, color:"#0A2463" },
+  { name:"México",    flag:"🇲🇽", count:124, pct:69, color:"#FF6B35" },
+  { name:"España",    flag:"🇪🇸", count:97,  pct:54, color:"#6366F1" },
+  { name:"Panamá",    flag:"🇵🇦", count:73,  pct:40, color:"#22C55E" },
+  { name:"Venezuela", flag:"🇻🇪", count:42,  pct:23, color:"#F59E0B" },
+];
+
+const NAV = [
+  { id:"dashboard",  icon:"⊞", label:"Dashboard",    badge:null,  group:"main" },
+  { id:"leads",      icon:"◎", label:"Leads",         badge:"24",  group:"gestion" },
+  { id:"clientes",   icon:"♟", label:"Clientes",      badge:null,  group:"gestion" },
+  { id:"vendedores", icon:"◈", label:"Vendedores",    badge:null,  group:"gestion" },
+  { id:"paises",     icon:"◉", label:"Países",        badge:null,  group:"gestion" },
+  { id:"reportes",   icon:"▤", label:"Reportes",      badge:null,  group:"sistema" },
+  { id:"config",     icon:"⚙", label:"Configuración", badge:null,  group:"sistema" },
+  { id:"demo",       icon:"🚀", label:"Demo / Landing",badge:"NEW", group:"sistema" },
+];
+
+const BADGE_CFG = {
+  "Nuevo":      { cls:"b-nuevo",      label:"Nuevo" },
+  "Contactado": { cls:"b-contactado", label:"Contactado" },
+  "En proceso": { cls:"b-enproceso",  label:"En proceso" },
+  "Cerrado":    { cls:"b-cerrado",    label:"Cerrado" },
+};
+
+// ── HELPERS ────────────────────────────────────────────────────────────────
+function initials(name) { return name.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase(); }
+function fmtMoney(n) { return n>=1000000 ? `$${(n/1000000).toFixed(1)}M` : n>=1000 ? `$${(n/1000).toFixed(0)}k` : `$${n}`; }
+
+function AnimNum({ val, prefix="", suffix="", dur=1100 }) {
+  const [d, setD] = useState(0);
+  const t0 = useRef(null);
+  useEffect(()=>{
+    t0.current = null;
+    const target = typeof val==="number" ? val : parseFloat(String(val).replace(/[^\d.]/g,""));
+    const step = ts => {
+      if(!t0.current) t0.current = ts;
+      const p = Math.min((ts - t0.current)/dur, 1);
+      const e = 1 - Math.pow(1-p,3);
+      setD(Math.round(target*e));
+      if(p<1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [val]);
+  const fmt = n => n>=1000 ? (n/1000).toFixed(1)+"k" : n;
+  return <span>{prefix}{fmt(d)}{suffix}</span>;
+}
+
+function Sparkline({ color, data }) {
+  const max = Math.max(...data);
+  return (
+    <div style={{ display:"flex", alignItems:"flex-end", gap:2, height:28, marginTop:4 }}>
+      {data.map((v,i) => (
+        <div key={i} style={{ flex:1, borderRadius:3, background: i===data.length-1 ? color : `${color}44`, height:`${(v/max)*100}%`, transition:`height 0.8s ease ${i*0.05}s` }} />
+      ))}
+    </div>
+  );
+}
+
+function CountryBar({ name, flag, count, pct, color }) {
+  const [w, setW] = useState(0);
+  useEffect(()=>{ const t=setTimeout(()=>setW(pct),300); return()=>clearTimeout(t); },[pct]);
+  return (
+    <div className="country-item">
+      <div className="country-info">
+        <div className="country-name"><span>{flag}</span>{name}</div>
+        <div style={{display:"flex",alignItems:"center"}}>
+          <span className="country-count">{count}</span>
+          <span className="country-pct">{pct}%</span>
+        </div>
+      </div>
+      <div className="bar-track"><div className="bar-fill" style={{width:`${w}%`,background:color}} /></div>
+    </div>
+  );
+}
+
+function Badge({ state }) {
+  const cfg = BADGE_CFG[state] || BADGE_CFG["Nuevo"];
+  return <span className={`badge ${cfg.cls}`}><span className="badge-dot" />{cfg.label}</span>;
+}
+
+// ── LOGO SVG ───────────────────────────────────────────────────────────────
+function LogoIcon({ accent, size=34 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 54 54" fill="none" style={{flexShrink:0}}>
+      <rect width="54" height="54" rx="13" fill={accent}/>
+      <path d="M15 13 L15 41 L39 41" stroke="#fff" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M31 18 L39 10 L47 18" stroke="#0A2463" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/>
+      <line x1="39" y1="10" x2="39" y2="33" stroke="#0A2463" strokeWidth="5" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+// ── NEW LEAD MODAL ─────────────────────────────────────────────────────────
+function NewLeadModal({ onClose, onSave, accent, primary }) {
+  const [form, setForm] = useState({ name:"", email:"", phone:"", country:"Chile", vendor:"Carlos M.", state:"Nuevo", value:"" });
+  const set = (k,v) => setForm(f=>({...f,[k]:v}));
+  return (
+    <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div className="modal">
+        <div className="modal-header">
+          <div className="modal-title">Nuevo Lead</div>
+          <button className="modal-close" onClick={onClose}>✕</button>
+        </div>
+        <div className="modal-body">
+          <div className="form-row2">
+            <div className="form-group">
+              <label className="form-label">Nombre completo *</label>
+              <input className="form-input" placeholder="Ej: Juan García" value={form.name} onChange={e=>set("name",e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Correo electrónico</label>
+              <input className="form-input" type="email" placeholder="juan@empresa.com" value={form.email} onChange={e=>set("email",e.target.value)} />
+            </div>
+          </div>
+          <div className="form-row2">
+            <div className="form-group">
+              <label className="form-label">Teléfono</label>
+              <input className="form-input" placeholder="+56 9 1234 5678" value={form.phone} onChange={e=>set("phone",e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Valor estimado ($)</label>
+              <input className="form-input" type="number" placeholder="5000" value={form.value} onChange={e=>set("value",e.target.value)} />
+            </div>
+          </div>
+          <div className="form-row2">
+            <div className="form-group">
+              <label className="form-label">País</label>
+              <select className="form-select" value={form.country} onChange={e=>set("country",e.target.value)}>
+                {["Chile","México","España","Panamá","Venezuela"].map(c=><option key={c}>{c}</option>)}
+              </select>
+            </div>
+            <div className="form-group">
+              <label className="form-label">Vendedor</label>
+              <select className="form-select" value={form.vendor} onChange={e=>set("vendor",e.target.value)}>
+                {["Carlos M.","Ana P.","Luis T.","María G."].map(v=><option key={v}>{v}</option>)}
+              </select>
+            </div>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Estado inicial</label>
+            <select className="form-select" value={form.state} onChange={e=>set("state",e.target.value)}>
+              {["Nuevo","Contactado","En proceso","Cerrado"].map(s=><option key={s}>{s}</option>)}
+            </select>
+          </div>
+          <div className="modal-footer">
+            <button className="btn btn-outline" onClick={onClose}>Cancelar</button>
+            <button className="btn btn-primary" style={{background:accent}} onClick={()=>{if(form.name.trim()) onSave(form);}}>Guardar Lead</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── PAGE: DASHBOARD ────────────────────────────────────────────────────────
+function DashboardPage({ accent, primary, leads, goToLeads }) {
+  const spark = [28,35,42,38,55,48,60,72,65,80];
+  return (
+    <div className="content">
+      <div className="page-header">
+        <div>
+          <div className="page-title">Dashboard</div>
+          <div className="page-sub">Bienvenido de vuelta, Carlos · 3 de Mayo 2026</div>
+        </div>
+        <div style={{display:"flex",gap:8}}>
+          <button className="btn btn-outline">📊 Exportar</button>
+          <button className="btn btn-primary" style={{background:accent}} onClick={goToLeads}>+ Nuevo Lead</button>
+        </div>
+      </div>
+
+      <div className="kpi-grid">
+        {[
+          { label:"Total Leads",       val:484,    prefix:"",  trend:"12.5%", up:true,  color:primary,   spk:[28,35,42,38,55,48,60,72,65,80] },
+          { label:"Leads Activos",     val:312,    prefix:"",  trend:"8.3%",  up:true,  color:accent,    spk:[18,22,28,25,32,30,38,42,36,45] },
+          { label:"Clientes Cerrados", val:97,     prefix:"",  trend:"2.1%",  up:false, color:"#22C55E", spk:[8,12,9,14,11,8,10,13,9,7] },
+          { label:"Ingresos del Mes",  val:284500, prefix:"$", trend:"18.7%", up:true,  color:"#6366F1", spk:[120,145,160,140,180,155,200,230,210,260] },
+        ].map(k => (
+          <div className="kpi-card" key={k.label}>
+            <div className="kpi-accent" style={{background:k.color}} />
+            <div className="kpi-top">
+              <div className="kpi-icon" style={{background:`${k.color}18`}}>
+                <span style={{fontSize:17}}>{ k.label.includes("Lead")?"◎":k.label.includes("Activ")?"▶":k.label.includes("Cerr")?"✔":"$" }</span>
+              </div>
+              <div className={`kpi-trend ${k.up?"trend-up":"trend-dn"}`}>{k.up?"↑":"↓"} {k.trend}</div>
+            </div>
+            <div>
+              <div className="kpi-value"><AnimNum val={k.val} prefix={k.prefix} /></div>
+              <div className="kpi-label">{k.label}</div>
+            </div>
+            <Sparkline color={k.color} data={k.spk} />
+          </div>
+        ))}
+      </div>
+
+      <div className="bottom-grid">
+        <div className="card">
+          <div className="card-header">
+            <div><div className="card-title">Leads por País</div><div className="card-sub">Distribución internacional</div></div>
+            <div className="card-action">Ver mapa →</div>
+          </div>
+          <div className="chart-wrap">
+            {COUNTRIES_DATA.map(c => <CountryBar key={c.name} {...c} color={c.name==="Chile"?primary:c.name==="México"?accent:c.color} />)}
+            <div style={{display:"flex",gap:8,marginTop:16,flexWrap:"wrap"}}>
+              {COUNTRIES_DATA.map(c=>(
+                <div key={c.name} style={{background:"#F5F6FA",borderRadius:7,padding:"4px 10px",fontSize:11.5,fontWeight:600,color:"#6B7099",display:"flex",alignItems:"center",gap:4}}>
+                  <span>{c.flag}</span>{c.count}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="card-header">
+            <div><div className="card-title">Últimos Leads</div><div className="card-sub">Actividad reciente · {leads.length} registros</div></div>
+            <div className="card-action" onClick={goToLeads}>Ver todos →</div>
+          </div>
+          <div className="table-wrap">
+            <table>
+              <thead><tr>
+                {["Nombre","País","Vendedor","Estado","Fecha"].map(h=><th key={h}>{h}</th>)}
+              </tr></thead>
+              <tbody>
+                {leads.slice(0,6).map(l=>(
+                  <tr key={l.id}>
+                    <td><div className="lead-name-cell"><div className="lead-avatar" style={{background:l.color}}>{initials(l.name)}</div>{l.name}</div></td>
+                    <td><div className="country-cell"><span>{l.flag}</span>{l.country}</div></td>
+                    <td><div className="vendor-cell"><div className="vendor-dot">{l.vendor.split(" ").map(w=>w[0]).join("")}</div>{l.vendor}</div></td>
+                    <td><Badge state={l.state} /></td>
+                    <td style={{color:"#9EA3BD",fontSize:12}}>{l.date}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── PAGE: VENDEDORES ────────────────────────────────────────────────────────
+function VendedoresPage({ accent, primary }) {
+  const [barWidths, setBarWidths] = useState({});
+  useEffect(()=>{
+    const t = setTimeout(()=>{
+      const w = {};
+      SELLERS.forEach(s=>{ w[s.id]=s.pct; });
+      setBarWidths(w);
+    }, 300);
+    return ()=>clearTimeout(t);
+  },[]);
+
+  const total = SELLERS.reduce((a,s)=>a+s.leads,0);
+
+  return (
+    <div className="content">
+      <div className="page-header">
+        <div>
+          <div className="page-title">Vendedores</div>
+          <div className="page-sub">Equipo de ventas · {SELLERS.length} miembros activos</div>
+        </div>
+        <div style={{display:"flex",gap:8}}>
+          <button className="btn btn-outline">📊 Ver Rankings</button>
+          <button className="btn btn-primary" style={{background:accent}}>+ Agregar Vendedor</button>
+        </div>
+      </div>
+
+      {/* Summary row */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:14,marginBottom:22}}>
+        {[
+          {label:"Total Vendedores", val:SELLERS.length, icon:"◈", color:primary},
+          {label:"Leads Totales",    val:total,           icon:"◎", color:accent},
+          {label:"Leads Cerrados",   val:SELLERS.reduce((a,s)=>a+s.closed,0), icon:"✔", color:"#22C55E"},
+          {label:"Ingresos Totales", val:"$956k",         icon:"$", color:"#6366F1"},
+        ].map(s=>(
+          <div className="kpi-card" key={s.label}>
+            <div className="kpi-accent" style={{background:s.color}} />
+            <div className="kpi-top">
+              <div className="kpi-icon" style={{background:`${s.color}18`}}><span style={{fontSize:17}}>{s.icon}</span></div>
+            </div>
+            <div>
+              <div className="kpi-value">{typeof s.val==="number"?<AnimNum val={s.val}/>:s.val}</div>
+              <div className="kpi-label">{s.label}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="sellers-grid">
+        {SELLERS.map(s=>(
+          <div className="seller-card" key={s.id}>
+            <div className="seller-card-accent" style={{background:s.color}} />
+            <div className="seller-avatar-wrap">
+              <div className="seller-avatar" style={{background:s.color}}>
+                {initials(s.name)}
+              </div>
+              <div>
+                <div className="seller-name">{s.name}</div>
+                <div className="seller-role">{s.role}</div>
+              </div>
+            </div>
+
+            <div className="seller-countries">
+              {s.countries.map((c,i)=>{
+                const flagMap = {Chile:"🇨🇱",México:"🇲🇽",España:"🇪🇸",Panamá:"🇵🇦",Venezuela:"🇻🇪"};
+                return (
+                  <div className="country-pill" key={c}>
+                    <span>{flagMap[c]||"🌍"}</span>{c}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="seller-metrics">
+              <div className="metric-box">
+                <div className="metric-val" style={{color:s.color}}>{s.leads}</div>
+                <div className="metric-label">LEADS</div>
+              </div>
+              <div className="metric-box">
+                <div className="metric-val" style={{color:"#22C55E"}}>{s.closed}</div>
+                <div className="metric-label">CERRADOS</div>
+              </div>
+              <div className="metric-box">
+                <div className="metric-val" style={{fontSize:14,color:"#6366F1"}}>{fmtMoney(s.revenue)}</div>
+                <div className="metric-label">INGRESOS</div>
+              </div>
+            </div>
+
+            <div className="perf-bar">
+              <div className="perf-fill" style={{width:`${barWidths[s.id]||0}%`,background:s.color}} />
+            </div>
+            <div className="perf-label">
+              <span className="perf-text">Performance</span>
+              <span className="perf-pct" style={{color:s.color}}>{s.pct}%</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── DEMO PAGE (LANDING) ────────────────────────────────────────────────────
+function DemoPage({ goToDashboard }) {
+  const [submitting, setSubmitting] = React.useState(false);
+  const [sent, setSent] = React.useState(null);
+  const [adminMsg, setAdminMsg] = React.useState(null);
+  const [form, setForm] = React.useState({
+    nombre:"", empresa:"", pais:"", email:"", telefono:"",
+    industria:"", equipo:"", fuente:"", solucion:"", mensaje:""
+  });
+  const [admin, setAdmin] = React.useState({ email:"", pw:"" });
+  const set = (k,v) => setForm(f => ({...f, [k]:v}));
+
+  const submitDemo = (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setTimeout(() => {
+      setSubmitting(false);
+      setSent({ nombre: form.nombre, empresa: form.empresa });
+    }, 1200);
+  };
+
+  const handleAdminLogin = () => {
+    if (!admin.email || !admin.pw) {
+      setAdminMsg({type:"err", text:"Por favor ingresa tu email y contraseña."});
+      return;
+    }
+    setAdminMsg({type:"loading", text:"Verificando…"});
+    setTimeout(() => {
+      if (admin.email.includes("@") && admin.pw.length >= 4) {
+        setAdminMsg({type:"ok", text:"✅ Acceso concedido. Redirigiendo al CRM…"});
+        setTimeout(() => goToDashboard(), 1000);
+      } else {
+        setAdminMsg({type:"err", text:"❌ Credenciales incorrectas. Intenta nuevamente."});
+      }
+    }, 800);
+  };
+
+  const scrollTo = (id) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({behavior:"smooth", block:"start"});
+  };
+
+  return (
+    <div className="demo-page">
+      {/* NAV */}
+      <nav className="demo-nav">
+        <a className="nav-logo" href="#" onClick={(e)=>{e.preventDefault();}}>
+          <svg width="32" height="32" viewBox="0 0 54 54" fill="none">
+            <rect width="54" height="54" rx="13" fill="#FF6B35"/>
+            <path d="M15 13 L15 41 L39 41" stroke="#fff" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M31 18 L39 10 L47 18" stroke="#0A2463" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/>
+            <line x1="39" y1="10" x2="39" y2="33" stroke="#0A2463" strokeWidth="5" strokeLinecap="round"/>
+          </svg>
+          <span className="nav-logo-text">Lead<span>Pro</span></span>
+        </a>
+        <div className="nav-links">
+          <a className="nav-link" onClick={()=>scrollTo("preview")}>Producto</a>
+          <a className="nav-link" onClick={()=>scrollTo("canales")}>Canales</a>
+          <a className="nav-link" onClick={()=>scrollTo("form")}>Demo</a>
+          <a className="nav-admin" onClick={()=>scrollTo("admin")}>🔐 Admin</a>
+          <a className="nav-cta" onClick={()=>scrollTo("form")}>Solicitar Demo →</a>
+        </div>
+      </nav>
+
+      {/* HERO */}
+      <section className="hero" id="hero">
+        <div className="hero-bg" />
+        <div className="hero-grid" />
+        <div className="orb orb1" />
+        <div className="orb orb2" />
+        <div className="orb orb3" />
+        <div className="hero-content">
+          <div className="hero-badge">
+            <span className="pulse-dot" />
+            Nuevo · CRM con IA para equipos internacionales
+          </div>
+          <h1>Transforma tus<br/>Ventas con <span className="accent">IA</span></h1>
+          <p>Centraliza leads de WhatsApp, Facebook, LinkedIn y tu web. Cierra más negocios con seguimientos automáticos impulsados por inteligencia artificial.</p>
+          <div className="hero-ctas">
+            <button className="btn-hero-primary" onClick={()=>scrollTo("form")}>🚀 Ver Demo Ahora</button>
+            <button className="btn-hero-secondary" onClick={()=>scrollTo("preview")}>▶ Ver el producto</button>
+          </div>
+          <div className="hero-stats">
+            <div><div className="hero-stat-val">+484</div><div className="hero-stat-label">LEADS ACTIVOS</div></div>
+            <div><div className="hero-stat-val">7</div><div className="hero-stat-label">PAÍSES</div></div>
+            <div><div className="hero-stat-val">74%</div><div className="hero-stat-label">TASA CIERRE</div></div>
+            <div><div className="hero-stat-val">+200</div><div className="hero-stat-label">EQUIPOS</div></div>
+          </div>
+        </div>
+        <div style={{position:"absolute",right:56,top:"50%",transform:"translateY(-50%)",display:"flex",flexDirection:"column",gap:12,zIndex:2}}>
+          <div style={{background:"rgba(255,255,255,0.08)",backdropFilter:"blur(12px)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:14,padding:"14px 18px",minWidth:200}}>
+            <div style={{fontSize:10,fontWeight:700,color:"rgba(255,107,53,0.9)",letterSpacing:"0.08em",marginBottom:6}}>NUEVO LEAD</div>
+            <div style={{fontSize:13,fontWeight:700,color:"#fff"}}>Valentina Ruiz</div>
+            <div style={{fontSize:11,color:"rgba(255,255,255,0.45)",marginTop:2}}>🇨🇱 Chile · Facebook Ads</div>
+            <div style={{marginTop:8,height:3,background:"rgba(255,255,255,0.1)",borderRadius:99,overflow:"hidden"}}>
+              <div style={{height:"100%",width:"72%",background:"#FF6B35",borderRadius:99}} />
+            </div>
+          </div>
+          <div style={{background:"rgba(34,197,94,0.12)",backdropFilter:"blur(12px)",border:"1px solid rgba(34,197,94,0.2)",borderRadius:14,padding:"14px 18px"}}>
+            <div style={{fontSize:10,fontWeight:700,color:"#22C55E",letterSpacing:"0.08em",marginBottom:4}}>✔ LEAD CERRADO</div>
+            <div style={{fontSize:13,fontWeight:700,color:"#fff"}}>Roberto Núñez · $15,000</div>
+            <div style={{fontSize:11,color:"rgba(255,255,255,0.4)",marginTop:1}}>🇵🇦 Panamá · WhatsApp</div>
+          </div>
+          <div style={{background:"rgba(255,255,255,0.06)",backdropFilter:"blur(12px)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:14,padding:"14px 18px"}}>
+            <div style={{fontSize:10,fontWeight:700,color:"rgba(255,255,255,0.4)",letterSpacing:"0.08em",marginBottom:6}}>INGRESOS HOY</div>
+            <div style={{fontSize:22,fontWeight:900,color:"#fff"}}>$48,200</div>
+            <div style={{fontSize:11,color:"#22C55E",marginTop:2}}>↑ 18.7% vs ayer</div>
+          </div>
+        </div>
+      </section>
+
+      {/* PREVIEW */}
+      <section className="preview-section" id="preview">
+        <div style={{textAlign:"center",marginBottom:48}}>
+          <div className="section-label">Producto</div>
+          <div className="section-title">Tu CRM en acción</div>
+          <div className="section-sub" style={{margin:"0 auto"}}>Gestiona todos tus leads, vendedores y países desde un solo panel inteligente.</div>
+        </div>
+        <div className="browser-frame">
+          <div className="browser-bar">
+            <div className="browser-dots">
+              <div className="browser-dot" style={{background:"#FF5F57"}} />
+              <div className="browser-dot" style={{background:"#FEBC2E"}} />
+              <div className="browser-dot" style={{background:"#28C840"}} />
+            </div>
+            <div className="browser-url">app.leadprocrm.com/dashboard</div>
+            <div style={{marginLeft:"auto",display:"flex",gap:6}}>
+              <div style={{width:22,height:22,borderRadius:5,background:"#E8EAF2"}} />
+              <div style={{width:22,height:22,borderRadius:5,background:"#E8EAF2"}} />
+            </div>
+          </div>
+          <div className="browser-body">
+            <div className="mini-dash">
+              <div className="mini-sidebar">
+                <svg width="22" height="22" viewBox="0 0 54 54" fill="none" style={{marginBottom:8}}>
+                  <rect width="54" height="54" rx="13" fill="#FF6B35"/>
+                  <path d="M15 13 L15 41 L39 41" stroke="#fff" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M31 18 L39 10 L47 18" stroke="#0A2463" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
+                  <line x1="39" y1="10" x2="39" y2="33" stroke="#0A2463" strokeWidth="6" strokeLinecap="round"/>
+                </svg>
+                <div className="mini-nav-dot active">⊞</div>
+                <div className="mini-nav-dot">◎</div>
+                <div className="mini-nav-dot">♟</div>
+                <div className="mini-nav-dot">◈</div>
+                <div className="mini-nav-dot">◉</div>
+                <div className="mini-nav-dot" style={{marginTop:"auto"}}>⚙</div>
+              </div>
+              <div className="mini-main">
+                <div className="mini-header">
+                  <div className="mini-search" />
+                  <div style={{marginLeft:"auto",display:"flex",gap:6,alignItems:"center"}}>
+                    <div style={{width:22,height:22,borderRadius:6,background:"#F5F6FA"}} />
+                    <div style={{width:22,height:22,borderRadius:6,background:"linear-gradient(135deg,#0A2463,#FF6B35)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:8,fontWeight:700,color:"#fff"}}>CM</div>
+                  </div>
+                </div>
+                <div className="mini-content">
+                  <div className="mini-kpi-row">
+                    {[
+                      {v:"484",l:"Total Leads",c:"#0A2463",w:"72%"},
+                      {v:"312",l:"Activos",c:"#FF6B35",w:"58%"},
+                      {v:"97",l:"Cerrados",c:"#22C55E",w:"40%"},
+                      {v:"$284k",l:"Ingresos",c:"#6366F1",w:"85%",sm:true},
+                    ].map((k,i)=>(
+                      <div key={i} className="mini-kpi">
+                        <div className="mini-kpi-val" style={{color:k.c,fontSize:k.sm?13:16}}>{k.v}</div>
+                        <div className="mini-kpi-label">{k.l}</div>
+                        <div className="mini-kpi-bar" style={{background:k.c+"30"}}><div style={{height:"100%",width:k.w,background:k.c,borderRadius:99}} /></div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mini-grid">
+                    <div className="mini-card">
+                      <div className="mini-card-title">Leads por País</div>
+                      <div className="mini-bar-row">
+                        {[
+                          {f:"🇨🇱",n:"Chile",w:"82%",c:"#0A2463"},
+                          {f:"🇲🇽",n:"México",w:"69%",c:"#FF6B35"},
+                          {f:"🇪🇸",n:"España",w:"54%",c:"#6366F1"},
+                          {f:"🇵🇦",n:"Panamá",w:"40%",c:"#22C55E"},
+                          {f:"🇻🇪",n:"Vzla",w:"23%",c:"#F59E0B"},
+                        ].map((c,i)=>(
+                          <div key={i} className="mini-country-row">
+                            <span style={{fontSize:11}}>{c.f}</span>
+                            <span style={{fontSize:9,fontWeight:600,color:"#1A1D2E",flex:1}}>{c.n}</span>
+                            <div style={{width:60,height:5,background:"#F0F2FA",borderRadius:99,overflow:"hidden"}}>
+                              <div className="mini-country-bar" style={{width:c.w,background:c.c}} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="mini-card">
+                      <div className="mini-card-title">Últimos Leads</div>
+                      {[
+                        {a:"V",b:"#6366F1",n:"Valentina R.",f:"🇨🇱",bg:"#EEF4FF",co:"#3B82F6",t:"Nuevo"},
+                        {a:"J",b:"#FF6B35",n:"Jorge R.",f:"🇲🇽",bg:"#FFF4EE",co:"#FF6B35",t:"Contactado"},
+                        {a:"I",b:"#8B5CF6",n:"Isabel F.",f:"🇪🇸",bg:"#FFFBEA",co:"#F59E0B",t:"En proceso"},
+                        {a:"R",b:"#0EA5E9",n:"Roberto N.",f:"🇵🇦",bg:"#EDFAF4",co:"#22C55E",t:"Cerrado"},
+                        {a:"G",b:"#EC4899",n:"Gabriela T.",f:"🇻🇪",bg:"#EEF4FF",co:"#3B82F6",t:"Nuevo"},
+                      ].map((r,i)=>(
+                        <div key={i} className="mini-table-row">
+                          <div className="mini-avatar" style={{background:r.b,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:8,fontWeight:700}}>{r.a}</div>
+                          <span style={{flex:1,fontSize:9,fontWeight:600,color:"#1A1D2E"}}>{r.n}</span>
+                          <span style={{fontSize:11}}>{r.f}</span>
+                          <div className="mini-badge" style={{background:r.bg,color:r.co}}>{r.t}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CHANNELS */}
+      <section className="channels-section" id="canales">
+        <div style={{textAlign:"center"}}>
+          <div className="section-label">Canales</div>
+          <div className="section-title">Captura leads donde están</div>
+          <div className="section-sub" style={{margin:"0 auto"}}>LeadPro se integra con tus canales favoritos para centralizar cada lead automáticamente.</div>
+        </div>
+        <div className="channels-grid">
+          {/* WhatsApp */}
+          <div className="channel-card">
+            <div className="channel-header" style={{background:"#F0FDF4",borderBottom:"1px solid #DCFCE7"}}>
+              <div className="channel-icon" style={{background:"#25D366"}}>💬</div>
+              <div>
+                <div className="channel-name">WhatsApp Business</div>
+                <div className="channel-type">Mensaje de bienvenida automático</div>
+              </div>
+              <div style={{marginLeft:"auto",display:"flex",alignItems:"center",gap:5,fontSize:12,fontWeight:700,color:"#22C55E"}}>● Activo</div>
+            </div>
+            <div className="channel-body" style={{paddingTop:14}}>
+              <div className="wa-chat">
+                <div className="wa-msg recv"><div>¡Hola! Me interesa el SUV que vi en su web 🚗</div><div className="wa-time">09:14</div></div>
+                <div className="wa-msg sent"><div>¡Hola Valentina! 👋 Soy el asistente de <strong>LeadPro Auto</strong>. Tenemos el SUV con financiamiento desde 0%. ¿Te envío detalles?</div><div className="wa-time">09:14 ✓✓</div></div>
+                <div className="wa-msg recv"><div>Sí por favor! 😊</div><div className="wa-time">09:15</div></div>
+                <div style={{background:"rgba(10,36,99,0.06)",borderRadius:8,padding:"8px 10px",fontSize:10.5,color:"#6B7099",display:"flex",alignItems:"center",gap:6}}>
+                  <span>🤖</span> Lead creado automáticamente · Asignado a Carlos M.
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Facebook */}
+          <div className="channel-card">
+            <div className="channel-header" style={{background:"#EFF6FF",borderBottom:"1px solid #DBEAFE"}}>
+              <div className="channel-icon" style={{background:"#1877F2"}}>📘</div>
+              <div>
+                <div className="channel-name">Facebook Lead Ads</div>
+                <div className="channel-type">Formulario integrado · Tiempo real</div>
+              </div>
+              <div style={{marginLeft:"auto",display:"flex",alignItems:"center",gap:5,fontSize:12,fontWeight:700,color:"#22C55E"}}>● Activo</div>
+            </div>
+            <div className="channel-body" style={{paddingTop:14}}>
+              <div className="fb-form">
+                <div className="fb-form-header">
+                  <div className="fb-form-title">LeadPro CRM · Solicitud de información</div>
+                  <div className="fb-form-sub">Patrocinado · Responde en minutos</div>
+                </div>
+                <div className="fb-form-body">
+                  <div style={{fontSize:12,color:"#1A1D2E",fontWeight:600,marginBottom:8}}>¿Listo para transformar tus ventas?</div>
+                  <input className="fb-field" placeholder="Tu nombre completo" readOnly/>
+                  <input className="fb-field" placeholder="Email corporativo" readOnly style={{marginTop:6}}/>
+                  <select className="fb-field" style={{marginTop:6,cursor:"pointer"}}>
+                    <option>🇨🇱 Chile</option><option>🇲🇽 México</option><option>🇪🇸 España</option>
+                  </select>
+                  <button className="fb-btn" style={{marginTop:8}}>Solicitar Demo Gratis →</button>
+                  <div style={{fontSize:10,color:"#9EA3BD",marginTop:6,textAlign:"center"}}>Al enviar, el lead se sincroniza con LeadPro CRM automáticamente</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* LinkedIn */}
+          <div className="channel-card">
+            <div className="channel-header" style={{background:"#EFF6FF",borderBottom:"1px solid #DBEAFE"}}>
+              <div className="channel-icon" style={{background:"#0A66C2"}}>💼</div>
+              <div>
+                <div className="channel-name">LinkedIn Sales Navigator</div>
+                <div className="channel-type">Mensaje de conexión automatizado</div>
+              </div>
+              <div style={{marginLeft:"auto",display:"flex",alignItems:"center",gap:5,fontSize:12,fontWeight:700,color:"#F59E0B"}}>● Configurar</div>
+            </div>
+            <div className="channel-body" style={{paddingTop:14}}>
+              <div className="li-card">
+                <div className="li-profile">
+                  <div className="li-avatar">JR</div>
+                  <div>
+                    <div className="li-name">Jorge Ramírez</div>
+                    <div className="li-title">Director Comercial · TechCorp México</div>
+                    <div style={{fontSize:10,color:"#0A66C2",marginTop:2}}>500+ conexiones</div>
+                  </div>
+                </div>
+                <div className="li-msg">
+                  Hola Jorge, vi que en TechCorp buscan soluciones de CRM. En LeadPro ayudamos a equipos como el tuyo a <strong>cerrar 3x más leads</strong> en 7 países de LATAM. ¿15 min para una demo? 🚀
+                </div>
+                <div className="li-actions">
+                  <button className="li-btn primary">Aceptar conexión</button>
+                  <button className="li-btn secondary">Ver perfil</button>
+                </div>
+              </div>
+              <div style={{background:"#F5F6FA",borderRadius:8,padding:"8px 10px",fontSize:10.5,color:"#6B7099",display:"flex",alignItems:"center",gap:6,marginTop:10}}>
+                <span>🤖</span> Secuencia automática · 3 mensajes · 48h entre cada uno
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* DEMO FORM */}
+      <section className="form-section" id="form">
+        <div className="form-grid-layout">
+          <div>
+            <div className="section-label">Demo Gratuita</div>
+            <div className="section-title">Empieza a vender<br/>más en 24 horas</div>
+            <div className="section-sub">Sin tarjeta de crédito. Configuración en 5 minutos. Demo personalizada para tu industria.</div>
+            <div className="benefits-list">
+              {[
+                {bg:"#EEF4FF",ic:"🎯",t:"Gestión inteligente de leads",d:"Centraliza leads de todos tus canales. Filtra por país, estado y vendedor con un clic."},
+                {bg:"#FFF0EA",ic:"🤖",t:"IA que convierte automáticamente",d:"Respuestas automáticas por WhatsApp, email y LinkedIn. Tu equipo interviene solo cuando hay oportunidad real."},
+                {bg:"#EDFAF4",ic:"🌎",t:"Cobertura en 7 países",d:"Chile, México, España, Panamá, Venezuela, Argentina y EEUU desde una sola plataforma."},
+                {bg:"#FFFBEA",ic:"📊",t:"Reportes en tiempo real",d:"Métricas de conversión, ingresos y performance de cada vendedor actualizadas al minuto."},
+              ].map((b,i)=>(
+                <div key={i} className="benefit-item">
+                  <div className="benefit-icon-wrap" style={{background:b.bg}}>{b.ic}</div>
+                  <div>
+                    <div className="benefit-title">{b.t}</div>
+                    <div className="benefit-desc">{b.d}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{display:"flex",gap:16,marginTop:32,flexWrap:"wrap"}}>
+              {["Sin contrato","Cancela cuando quieras","Soporte en español"].map(t=>(
+                <div key={t} style={{display:"flex",alignItems:"center",gap:7,fontSize:12.5,fontWeight:600,color:"#6B7099"}}>
+                  <span style={{color:"#22C55E",fontSize:16}}>✔</span> {t}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="form-card">
+            {sent ? (
+              <div className="success-state animate-in">
+                <div style={{width:76,height:76,borderRadius:"50%",background:"linear-gradient(135deg,#22C55E,#16A34A)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:34,margin:"0 auto 18px"}}>✅</div>
+                <div style={{fontSize:22,fontWeight:900,color:"#0A2463",marginBottom:8}}>¡Solicitud enviada, {sent.nombre || ""}!</div>
+                <div style={{fontSize:14.5,color:"#6B7099",lineHeight:1.65,maxWidth:320,margin:"0 auto 28px"}}>
+                  Nuestro equipo revisará los datos de <strong>{sent.empresa || "tu empresa"}</strong> y te contactará en menos de <strong>24 horas</strong>.
+                </div>
+                <div style={{display:"flex",flexDirection:"column",gap:10,maxWidth:300,margin:"0 auto 28px"}}>
+                  {[
+                    {icon:"📧",step:"PASO 1",text:"Revisa tu email de confirmación"},
+                    {icon:"📞",step:"EN 24 H",text:"Te llamamos para agendar tu demo"},
+                    {icon:"🚀",step:"DEMO",text:"30 min personalizados para tu negocio"},
+                  ].map((s,i)=>(
+                    <div key={i} style={{display:"flex",alignItems:"center",gap:12,background:"#F9FAFD",borderRadius:11,padding:"12px 14px",textAlign:"left"}}>
+                      <span style={{fontSize:22}}>{s.icon}</span>
+                      <div>
+                        <div style={{fontSize:10,fontWeight:700,color:"#9EA3BD",letterSpacing:"0.06em"}}>{s.step}</div>
+                        <div style={{fontSize:13,fontWeight:700,color:"#1A1D2E"}}>{s.text}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button onClick={goToDashboard} style={{display:"inline-flex",alignItems:"center",gap:8,height:48,padding:"0 28px",background:"#FF6B35",color:"#fff",borderRadius:12,fontSize:14,fontWeight:800,border:"none",cursor:"pointer"}}>
+                  → Explorar el Dashboard
+                </button>
+              </div>
+            ) : (
+              <>
+                <h3>Solicita tu Demo Gratuita</h3>
+                <p>Completa el formulario y te contactamos en menos de 24 h</p>
+                <form onSubmit={submitDemo}>
+                  <div className="form-grid">
+                    <div className="form-group">
+                      <label className="form-label">Nombre completo *</label>
+                      <input className="form-input" value={form.nombre} onChange={e=>set("nombre",e.target.value)} placeholder="Tu nombre" required/>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Empresa *</label>
+                      <input className="form-input" value={form.empresa} onChange={e=>set("empresa",e.target.value)} placeholder="Nombre de tu empresa" required/>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">País *</label>
+                      <select className="form-select" value={form.pais} onChange={e=>set("pais",e.target.value)} required>
+                        <option value="">🌍 Selecciona</option>
+                        <option value="CL">🇨🇱 Chile</option>
+                        <option value="MX">🇲🇽 México</option>
+                        <option value="ES">🇪🇸 España</option>
+                        <option value="PA">🇵🇦 Panamá</option>
+                        <option value="VE">🇻🇪 Venezuela</option>
+                        <option value="AR">🇦🇷 Argentina</option>
+                        <option value="US">🇺🇸 EEUU</option>
+                        <option value="OT">🌍 Otro</option>
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Email corporativo *</label>
+                      <input className="form-input" type="email" value={form.email} onChange={e=>set("email",e.target.value)} placeholder="tu@empresa.com" required/>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Teléfono</label>
+                      <input className="form-input" value={form.telefono} onChange={e=>set("telefono",e.target.value)} placeholder="+56 9 1234 5678"/>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Industria *</label>
+                      <select className="form-select" value={form.industria} onChange={e=>set("industria",e.target.value)} required>
+                        <option value="">Selecciona</option>
+                        <option>Automotriz</option><option>Inmobiliaria</option><option>Retail</option>
+                        <option>Hotel / Turismo</option><option>Finanzas</option><option>Tecnología</option><option>Otro</option>
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Número de vendedores</label>
+                      <select className="form-select" value={form.equipo} onChange={e=>set("equipo",e.target.value)}>
+                        <option value="">Selecciona</option>
+                        <option>1–5</option><option>6–15</option><option>16–50</option><option>Más de 50</option>
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">¿Cómo nos encontraste?</label>
+                      <select className="form-select" value={form.fuente} onChange={e=>set("fuente",e.target.value)}>
+                        <option value="">Selecciona</option>
+                        <option>Facebook</option><option>Instagram</option><option>LinkedIn</option>
+                        <option>Google</option><option>Referido de un colega</option><option>Otro</option>
+                      </select>
+                    </div>
+                    <div className="form-group full">
+                      <label className="form-label">¿Qué solución buscas?</label>
+                      <select className="form-select" value={form.solucion} onChange={e=>set("solucion",e.target.value)}>
+                        <option value="">Selecciona una opción</option>
+                        <option>Gestión de leads y prospectos</option>
+                        <option>Seguimiento de clientes activos</option>
+                        <option>Reportes y métricas</option>
+                        <option>Automatización con IA</option>
+                        <option>Integración WhatsApp / redes</option>
+                        <option>Todo lo anterior</option>
+                      </select>
+                    </div>
+                    <div className="form-group full">
+                      <label className="form-label">Mensaje (opcional)</label>
+                      <textarea className="form-textarea" value={form.mensaje} onChange={e=>set("mensaje",e.target.value)} placeholder="Cuéntanos más sobre tu empresa y lo que buscas lograr…"/>
+                    </div>
+                  </div>
+                  <button type="submit" className="btn-submit" disabled={submitting} style={submitting?{opacity:0.75,pointerEvents:"none"}:{}}>
+                    {submitting ? <><span style={{display:"inline-block",animation:"demoSpin 0.8s linear infinite"}}>⏳</span> Enviando…</> : <>🚀 Solicitar Demo Gratuita</>}
+                  </button>
+                  <div className="form-trust">🔒 Sin spam · Sin tarjeta de crédito · Respuesta en 24 h</div>
+                </form>
+              </>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* ADMIN */}
+      <section className="admin-section" id="admin" style={{padding:"80px 56px",background:"#0A2463",position:"relative",overflow:"hidden"}}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:60,alignItems:"center",maxWidth:1000,margin:"0 auto",position:"relative",zIndex:1}}>
+          <div>
+            <h2 style={{fontSize:36,fontWeight:900,color:"#fff",marginBottom:12,letterSpacing:"-0.02em"}}>Acceso <span style={{color:"#FF6B35"}}>Administrador</span></h2>
+            <p style={{fontSize:15,color:"rgba(255,255,255,0.5)",lineHeight:1.7,marginBottom:28}}>Panel exclusivo para gestores del CRM. Administra usuarios, vendedores, países e integraciones desde un solo lugar.</p>
+            <div style={{display:"flex",flexDirection:"column",gap:12}}>
+              {[
+                {ic:"👥",t:"Gestión de usuarios y roles"},
+                {ic:"📊",t:"Reportes avanzados en tiempo real"},
+                {ic:"⚙",t:"Configuración de integraciones"},
+                {ic:"🛡",t:"Seguridad y control de acceso"},
+                {ic:"🌎",t:"Gestión de mercados internacionales"},
+              ].map((f,i)=>(
+                <div key={i} style={{display:"flex",alignItems:"center",gap:10,fontSize:13.5,color:"rgba(255,255,255,0.7)"}}>
+                  <div style={{width:28,height:28,borderRadius:8,background:"rgba(255,107,53,0.15)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,flexShrink:0}}>{f.ic}</div>
+                  {f.t}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={{background:"#fff",borderRadius:20,padding:36}}>
+            <h3 style={{fontSize:18,fontWeight:800,color:"#0A2463",marginBottom:4}}>Acceder como Admin</h3>
+            <p style={{fontSize:13,color:"#9EA3BD",marginBottom:24}}>Ingresa tus credenciales de administrador</p>
+            <input className="admin-input" type="email" value={admin.email} onChange={e=>setAdmin(a=>({...a,email:e.target.value}))} placeholder="admin@tuempresa.com" style={{width:"100%",height:44,background:"#F5F6FA",border:"1.5px solid #E8EAF2",borderRadius:10,padding:"0 14px",fontFamily:"inherit",fontSize:14,color:"#1A1D2E",outline:"none",marginBottom:12}}/>
+            <input className="admin-input" type="password" value={admin.pw} onChange={e=>setAdmin(a=>({...a,pw:e.target.value}))} placeholder="••••••••••" style={{width:"100%",height:44,background:"#F5F6FA",border:"1.5px solid #E8EAF2",borderRadius:10,padding:"0 14px",fontFamily:"inherit",fontSize:14,color:"#1A1D2E",outline:"none",marginBottom:18}}/>
+            <button onClick={handleAdminLogin} style={{width:"100%",height:48,background:"#0A2463",color:"#fff",border:"none",borderRadius:11,fontFamily:"inherit",fontSize:14.5,fontWeight:800,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+              🔐 Acceder como Admin
+            </button>
+            <div style={{textAlign:"center",marginTop:14,fontSize:13,color:"#9EA3BD"}}>
+              <a style={{color:"#FF6B35",fontWeight:600,cursor:"pointer"}}>¿Olvidaste tu contraseña?</a> · <a style={{color:"#FF6B35",fontWeight:600,cursor:"pointer"}} onClick={goToDashboard}>Ir al Dashboard →</a>
+            </div>
+            {adminMsg && (
+              <div style={{marginTop:14,padding:"10px 14px",borderRadius:9,fontSize:12.5,textAlign:"center",
+                background: adminMsg.type==="ok" ? "#EDFAF4" : adminMsg.type==="loading" ? "#F5F6FA" : "#FFF0EC",
+                color: adminMsg.type==="ok" ? "#22C55E" : adminMsg.type==="loading" ? "#6B7099" : "#FF6B35"}}>
+                {adminMsg.text}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* SOCIAL PROOF */}
+      <section className="social-section">
+        <div style={{textAlign:"center"}}>
+          <div style={{fontSize:12,fontWeight:800,color:"#C0C4D8",letterSpacing:"0.12em",textTransform:"uppercase"}}>Empresas que confían en LeadPro</div>
+          <div className="logos-row">
+            {["TechCorp","Iberdrola","LogiMex","BanPanamá","AgroFuturo","Retailes"].map(n=>(
+              <div key={n} className="logo-pill">{n}</div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="demo-footer">
+        <div className="footer-top">
+          <div className="footer-brand">
+            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:4}}>
+              <svg width="28" height="28" viewBox="0 0 54 54" fill="none">
+                <rect width="54" height="54" rx="13" fill="#FF6B35"/>
+                <path d="M15 13 L15 41 L39 41" stroke="#fff" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M31 18 L39 10 L47 18" stroke="#0A2463" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/>
+                <line x1="39" y1="10" x2="39" y2="33" stroke="#0A2463" strokeWidth="5" strokeLinecap="round"/>
+              </svg>
+              <span style={{fontSize:17,fontWeight:900,color:"#fff"}}>Lead<span style={{color:"#FF6B35"}}>Pro</span> CRM</span>
+            </div>
+            <p>CRM con IA para equipos de ventas internacionales. Cierra más leads en menos tiempo.</p>
+            <div className="footer-social">
+              <div className="social-icon" style={{background:"#1877F2"}} title="Facebook">f</div>
+              <div className="social-icon" style={{background:"linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366)"}} title="Instagram">ig</div>
+              <div className="social-icon" style={{background:"#0A66C2"}} title="LinkedIn">in</div>
+              <div className="social-icon" style={{background:"#25D366"}} title="WhatsApp">wa</div>
+            </div>
+          </div>
+          {[
+            {t:"Producto",l:["Dashboard","Leads","Vendedores","Reportes","Integraciones"]},
+            {t:"Empresa",l:["Nosotros","Blog","Casos de éxito","Precios","Socios"]},
+            {t:"Soporte",l:["Centro de ayuda","Documentación","Status del sistema","Contacto"]},
+          ].map((c,i)=>(
+            <div key={i}>
+              <div className="footer-col-title">{c.t}</div>
+              {c.l.map(x=><a key={x} className="footer-link" onClick={c.t==="Producto" && x==="Dashboard" ? goToDashboard : null}>{x}</a>)}
+            </div>
+          ))}
+        </div>
+        <div className="footer-bottom">
+          <div className="footer-copy">© 2026 LeadPro CRM · Todos los derechos reservados</div>
+          <div className="footer-badges">
+            <div className="footer-badge">🔒 SSL Seguro</div>
+            <div className="footer-badge">🇪🇺 GDPR</div>
+            <div className="footer-badge">ISO 27001</div>
+          </div>
+          <div style={{display:"flex",gap:16}}>
+            <a className="footer-link" style={{margin:0}}>Privacidad</a>
+            <a className="footer-link" style={{margin:0}}>Términos</a>
+            <a className="footer-link" style={{margin:0,color:"rgba(255,107,53,0.7)"}} onClick={goToDashboard}>→ Ir al CRM</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+// ── PLACEHOLDER PAGE ───────────────────────────────────────────────────────
+function PlaceholderPage({ id }) {
+  const info = {
+    clientes: { icon:"♟", title:"Clientes", sub:"Base de clientes activos" },
+    paises:   { icon:"◉", title:"Países",   sub:"Cobertura internacional" },
+    reportes: { icon:"▤", title:"Reportes", sub:"Análisis y métricas avanzadas" },
+    config:   { icon:"⚙", title:"Configuración", sub:"Ajustes del sistema" },
+  };
+  const p = info[id] || { icon:"◈", title:id, sub:"" };
+  return (
+    <div className="content">
+      <div className="page-header">
+        <div><div className="page-title">{p.title}</div><div className="page-sub">{p.sub}</div></div>
+      </div>
+      <div className="empty-state" style={{marginTop:60}}>
+        <div style={{fontSize:56,opacity:0.2}}>{p.icon}</div>
+        <div style={{fontSize:16,fontWeight:700,color:"#C0C4D8"}}>{p.title}</div>
+        <div style={{fontSize:13,color:"#D5D8E8"}}>Próximamente disponible</div>
+      </div>
+    </div>
+  );
+}
+
+// ── APP ROOT ───────────────────────────────────────────────────────────────
+function App() {
+  const [activePage, setActivePage] = useState("dashboard");
+  const [collapsed, setCollapsed]   = useState(false);
+  const [notifOpen, setNotifOpen]   = useState(false);
+  const [tweaks, setTweak]          = useTweaks(TWEAK_DEFAULTS);
+
+  const accent  = tweaks.accentColor;
+  const primary = tweaks.primaryColor;
+
+  const renderPage = () => {
+    switch(activePage) {
+      case "dashboard":  return <DashboardPage accent={accent} primary={primary} leads={window.ALL_LEADS||[]} goToLeads={()=>setActivePage("leads")} />;
+      case "leads":      return <LeadsPage accent={accent} primary={primary} />;
+      case "vendedores": return <VendedoresPage accent={accent} primary={primary} />;
+      case "clientes":   return <ClientesPage accent={accent} primary={primary} />;
+      case "paises":     return <PaisesPage accent={accent} primary={primary} />;
+      case "reportes":   return <ReportesPage accent={accent} primary={primary} />;
+      case "config":     return <ConfiguracionPage accent={accent} primary={primary} />;
+      case "demo":       return <DemoPage goToDashboard={()=>setActivePage("dashboard")} />;
+      default:           return <PlaceholderPage id={activePage} />;
+    }
+  };
+
+  // Demo page renders fullscreen without CRM chrome
+  if (activePage === "demo") {
+    return (
+      <div className="app" style={{display:"block",height:"100vh",overflow:"hidden"}}>
+        <button onClick={()=>setActivePage("dashboard")} style={{position:"fixed",top:16,left:16,zIndex:300,height:38,padding:"0 16px",background:"#0A2463",color:"#fff",border:"none",borderRadius:10,fontFamily:"inherit",fontSize:13,fontWeight:700,cursor:"pointer",boxShadow:"0 4px 14px rgba(0,0,0,0.15)",display:"flex",alignItems:"center",gap:6}}>
+          ← Volver al CRM
+        </button>
+        <DemoPage goToDashboard={()=>setActivePage("dashboard")} />
+        <TweaksPanel>
+          <TweakSection label="Colores" />
+          <TweakColor label="Color Principal" value={tweaks.primaryColor} onChange={v=>setTweak("primaryColor",v)} />
+          <TweakColor label="Color Acento"    value={tweaks.accentColor}  onChange={v=>setTweak("accentColor",v)} />
+        </TweaksPanel>
+      </div>
+    );
+  }
+
+  return (
+    <div className="app">
+      {/* SIDEBAR */}
+      <aside className="sidebar" style={{background:primary, width:collapsed?"64px":"240px", minWidth:collapsed?"64px":"240px"}}>
+        <div className="sidebar-logo" onClick={()=>setCollapsed(c=>!c)}>
+          <LogoIcon accent={accent} size={34} />
+          {!collapsed && (
+            <div>
+              <div className="logo-text">Lead<span style={{color:accent}}>Pro</span></div>
+              <div className="logo-sub">CRM PLATFORM</div>
+            </div>
+          )}
+        </div>
+
+        <nav className="sidebar-nav">
+          {["main","gestion","sistema"].map(group => (
+            <div key={group}>
+              {!collapsed && (
+                <div className="nav-label">
+                  {group==="main"?"Principal":group==="gestion"?"Gestión":"Sistema"}
+                </div>
+              )}
+              {NAV.filter(n=>n.group===group).map(item=>(
+                <div key={item.id}
+                  className={`nav-item ${activePage===item.id?"active":""}`}
+                  style={activePage===item.id?{background:`${accent}22`,color:accent}:{}}
+                  onClick={()=>setActivePage(item.id)}>
+                  <span className="nav-icon">{item.icon}</span>
+                  {!collapsed && <span>{item.label}</span>}
+                  {!collapsed && item.badge && <span className="nav-badge" style={{background:accent}}>{item.badge}</span>}
+                </div>
+              ))}
+            </div>
+          ))}
+        </nav>
+
+        <div className="sidebar-footer">
+          <div className="nav-item" style={{color:"rgba(255,255,255,0.4)"}} onClick={()=>setCollapsed(c=>!c)}>
+            <span className="nav-icon">{collapsed?"▷":"◁"}</span>
+            {!collapsed && <span style={{fontSize:12.5}}>Contraer</span>}
+          </div>
+        </div>
+      </aside>
+
+      {/* MAIN */}
+      <div className="main">
+        {/* HEADER */}
+        <header className="header">
+          <button className="header-toggle" onClick={()=>setCollapsed(c=>!c)}>≡</button>
+          <div className="search-wrap">
+            <span className="search-icon">🔍</span>
+            <input className="search-input" placeholder="Buscar leads, clientes, países…" />
+          </div>
+          <div className="header-right">
+            <div style={{position:"relative"}}>
+              <button className="header-btn" onClick={()=>setNotifOpen(n=>!n)}>
+                🔔<span className="notif-dot" />
+              </button>
+              {notifOpen && (
+                <div className="notif-dropdown">
+                  <div className="notif-hd">Notificaciones</div>
+                  {[
+                    {icon:"◎",text:"Nuevo lead: Valentina Ruiz (Chile)",time:"Hace 5 min",bg:`${accent}18`},
+                    {icon:"✔",text:"Lead cerrado: Diego Castillo",time:"Hace 1 h",bg:"#E8FAF0"},
+                    {icon:"▶",text:"Recordatorio: seguimiento a Jorge R.",time:"Hace 2 h",bg:"#FFF4EE"},
+                  ].map((n,i)=>(
+                    <div key={i} className="notif-item">
+                      <div className="notif-icon" style={{background:n.bg}}>{n.icon}</div>
+                      <div><div className="notif-text">{n.text}</div><div className="notif-time">{n.time}</div></div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <button className="header-btn">⚙</button>
+            <div style={{width:1,height:26,background:"#E8EAF2",margin:"0 2px"}} />
+            <div className="user-info"><div className="user-name">Carlos Martínez</div><div className="user-role">Sales Manager</div></div>
+            <div className="user-avatar" style={{background:`linear-gradient(135deg,${primary},${accent})`}}>CM</div>
+          </div>
+        </header>
+
+        {/* PAGE */}
+        <div style={{flex:1,overflow:"hidden",display:"flex",flexDirection:"column"}}>
+          {renderPage()}
+        </div>
+      </div>
+
+      {/* TWEAKS */}
+      <TweaksPanel>
+        <TweakSection label="Colores" />
+        <TweakColor label="Color Principal" value={tweaks.primaryColor} onChange={v=>setTweak("primaryColor",v)} />
+        <TweakColor label="Color Acento"    value={tweaks.accentColor}  onChange={v=>setTweak("accentColor",v)} />
+        <TweakSection label="Vista" />
+        <TweakToggle label="Sparklines KPI" value={tweaks.showSparklines} onChange={v=>setTweak("showSparklines",v)} />
+      </TweaksPanel>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+</script>
+</body>
+</html>
